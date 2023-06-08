@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+
+import java.util.Collection;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,10 +19,12 @@ public class User {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     private String userId;
+    @Indexed(unique = true)
     private String email;
     private String password;
     private String username;
     private String refToken;
+    private Collection<Car> cars;
 
     public User(String email, String password, String username) {
         this.email = email;

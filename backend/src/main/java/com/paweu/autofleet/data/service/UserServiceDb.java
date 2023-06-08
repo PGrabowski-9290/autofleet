@@ -9,9 +9,9 @@ import reactor.core.publisher.Mono;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Service
-public class UserService {
+public class UserServiceDb {
 
-    public UserService(ReactiveMongoTemplate mongoTemplate) {
+    public UserServiceDb(ReactiveMongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

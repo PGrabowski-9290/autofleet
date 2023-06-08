@@ -3,8 +3,7 @@ package com.paweu.autofleet.auth.service;
 import com.paweu.autofleet.auth.response.LoginResponse;
 import com.paweu.autofleet.auth.response.RegisterResponse;
 import com.paweu.autofleet.data.models.User;
-import com.paweu.autofleet.data.service.UserService;
-import com.paweu.autofleet.exceptions.ResponseException;
+import com.paweu.autofleet.data.service.UserServiceDb;
 import com.paweu.autofleet.service.JwtService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class AuthService {
     @Autowired
-    private UserService userService;
+    private UserServiceDb userServiceDb;
     @Autowired
     private JwtService jwtService;
 
@@ -27,7 +26,7 @@ public class AuthService {
 
 
     public Mono<ResponseEntity<LoginResponse>> login(@NonNull String email, @NonNull String password){
-        return userService.findByEmail(email)
+        return userServiceDb.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .map(user -> {
                     ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(email))
@@ -46,7 +45,7 @@ public class AuthService {
                 passwordEncoder.encode(password),
                 username
             ))
-            .flatMap(userService::save)
+            .flatMap(userServiceDb::save)
                 .map(user -> ResponseEntity.ok().body(
                         new RegisterResponse(
                                 "regisetered",
