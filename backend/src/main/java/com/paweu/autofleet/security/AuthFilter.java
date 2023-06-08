@@ -31,7 +31,8 @@ public class AuthFilter implements WebFilter {
             Mono<SecurityUserDetails> user = userService.findByEmail(email).mapNotNull(SecurityUserDetails::new);
 
             return user.flatMap(u -> {
-                var auth = new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword(), u.getAuthorities());
+                var auth = new UsernamePasswordAuthenticationToken(u, u.getUsername(), u.getAuthorities());
+
                 return chain.filter(exchange).contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
             });
         } catch (Exception e) {
