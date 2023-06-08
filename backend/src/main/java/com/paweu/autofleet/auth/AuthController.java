@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public Mono<ResponseEntity<RegisterResponse>> register(@RequestBody RegisterRequest data){
-        return null;
+        return authService.register(data.email(), data.password(), data.username());
     }
 
     @PostMapping("/login")

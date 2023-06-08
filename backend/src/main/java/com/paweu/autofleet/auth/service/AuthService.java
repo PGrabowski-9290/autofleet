@@ -1,11 +1,14 @@
 package com.paweu.autofleet.auth.service;
 
 import com.paweu.autofleet.auth.response.LoginResponse;
-import com.paweu.autofleet.data.repository.UserRepository;
+import com.paweu.autofleet.auth.response.RegisterResponse;
+import com.paweu.autofleet.data.models.User;
+import com.paweu.autofleet.data.service.UserService;
+import com.paweu.autofleet.exceptions.ResponseException;
 import com.paweu.autofleet.service.JwtService;
 import lombok.NonNull;
-import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,31 +18,59 @@ import reactor.core.publisher.Mono;
 @Service
 public class AuthService {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private JwtService jwtService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private Log log;
 
     public Mono<ResponseEntity<LoginResponse>> login(@NonNull String email, @NonNull String password){
-        return userRepository.findByEmail(email)
-                .onErrorResume(throwable -> {
-                    return  Mono.error(new IllegalArgumentException("błąd"));
-                })
-                .handle((user, sink) -> {
-                    if (!passwordEncoder.matches(password, user.getPassword())) {
-                        sink.error(new IllegalArgumentException("bad password"));
-                    }
+        return userService.findByEmail(email)
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .map(user -> {
                     ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(email))
                             .httpOnly(true)
                             .maxAge(jwtService.getRefreshTokenExpires())
                             .build();
                     String accessToken = jwtService.generateAccessToken(email);
+                    return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken));
+                })
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
+//                .onErrorResume(throwable -> {
+//                    throw Mono.error(new ResponseException("user not found", 404));
+//                })
+//                .handle((user, sink) -> {
+//                    if (!passwordEncoder.matches(password, user.getPassword())) {
+//                        sink.error(new ResponseException("wrong credentials", 401));
+//                    }
+//                    ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(email))
+//                            .httpOnly(true)
+//                            .maxAge(jwtService.getRefreshTokenExpires())
+//                            .build();
+//                    String accessToken = jwtService.generateAccessToken(email);
+//
+//                    sink.next(ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken)));
+//                });
+    }
 
-                    sink.next(ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken)));
-                });
+    public Mono<ResponseEntity<RegisterResponse>> register(String email, String password, String username){
+        return Mono.just(new User(
+                email,
+                passwordEncoder.encode(password),
+                username
+            ))
+            .flatMap(userService::save)
+                .map(user -> ResponseEntity.ok().body(
+                        new RegisterResponse(
+                                "regisetered",
+                                jwtService.generateAccessToken(user.getEmail())
+                        )
+                ));
+//        return userService.save(new User(email, password, username))
+//                .thenReturn(ResponseEntity.ok().body(new RegisterResponse("Registered",
+//                        jwtService.generateAccessToken(email)
+//                        )));
     }
 }
