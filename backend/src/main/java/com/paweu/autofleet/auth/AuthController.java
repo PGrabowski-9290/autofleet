@@ -4,6 +4,7 @@ import com.paweu.autofleet.auth.request.LoginRequest;
 import com.paweu.autofleet.auth.request.RegisterRequest;
 import com.paweu.autofleet.auth.response.LoginResponse;
 import com.paweu.autofleet.auth.response.RegisterResponse;
+import com.paweu.autofleet.auth.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,9 @@ import java.util.logging.Logger;
 @RequestMapping("/auth")
 public class AuthController {
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping("/register")
     public Mono<ResponseEntity<RegisterResponse>> register(@RequestBody RegisterRequest data){
         return null;
@@ -26,7 +30,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public Mono<ResponseEntity<LoginResponse>> login(@RequestBody LoginRequest data){
-        return null;
+        return authService.login(data.email(), data.password());
     }
 
     @PostMapping("/refresh")

@@ -24,6 +24,10 @@ public class JwtService {
     @Value("${jwt.expire.refreshToken}")
     private long refreshTokenExpires;
 
+    public long getRefreshTokenExpires() {
+        return refreshTokenExpires;
+    }
+
     private String generate(String sub, long expires, Algorithm algorithm){
         return JWT.create()
                 .withSubject(sub)
@@ -64,5 +68,4 @@ public class JwtService {
 
         return decodedJWT.getSubject();
     }
-
 }
