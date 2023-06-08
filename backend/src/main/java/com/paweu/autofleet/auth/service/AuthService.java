@@ -38,21 +38,6 @@ public class AuthService {
                     return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken));
                 })
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
-//                .onErrorResume(throwable -> {
-//                    throw Mono.error(new ResponseException("user not found", 404));
-//                })
-//                .handle((user, sink) -> {
-//                    if (!passwordEncoder.matches(password, user.getPassword())) {
-//                        sink.error(new ResponseException("wrong credentials", 401));
-//                    }
-//                    ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(email))
-//                            .httpOnly(true)
-//                            .maxAge(jwtService.getRefreshTokenExpires())
-//                            .build();
-//                    String accessToken = jwtService.generateAccessToken(email);
-//
-//                    sink.next(ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken)));
-//                });
     }
 
     public Mono<ResponseEntity<RegisterResponse>> register(String email, String password, String username){
@@ -68,9 +53,5 @@ public class AuthService {
                                 jwtService.generateAccessToken(user.getEmail())
                         )
                 ));
-//        return userService.save(new User(email, password, username))
-//                .thenReturn(ResponseEntity.ok().body(new RegisterResponse("Registered",
-//                        jwtService.generateAccessToken(email)
-//                        )));
     }
 }
