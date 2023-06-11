@@ -34,7 +34,7 @@ public class AuthService {
                             .maxAge(jwtService.getRefreshTokenExpires())
                             .build();
                     String accessToken = jwtService.generateAccessToken(email);
-                    return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken));
+                    return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken, user.getUsername()));
                 })
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }

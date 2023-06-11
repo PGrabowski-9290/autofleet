@@ -1,4 +1,5 @@
 package com.paweu.autofleet.auth.response;
 
-public record LoginResponse(String accessToken) {
+public record LoginResponse(String accessToken,
+                            String username) {
 }
