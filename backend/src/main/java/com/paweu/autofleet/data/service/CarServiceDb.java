@@ -1,18 +1,14 @@
 package com.paweu.autofleet.data.service;
 
+import com.mongodb.client.result.DeleteResult;
 import com.paweu.autofleet.data.models.Car;
-import com.paweu.autofleet.data.models.User;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Collection;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -29,4 +25,12 @@ public class CarServiceDb {
         return mongoTemplate.save(car, "cars");
     }
 
+
+    public Mono<Car> getCar(String id) {
+        return mongoTemplate.findOne(Query.query(where("_id").is(id)),Car.class);
+    }
+
+    public Mono<DeleteResult> deleteCar(String id) {
+        return mongoTemplate.remove(Query.query(where("_id").is(id)), Car.class);
+    }
 }

@@ -3,13 +3,11 @@ package com.paweu.autofleet.data.models;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.paweu.autofleet.cars.request.RequestNewCar;
+import com.paweu.autofleet.cars.response.ResponseCar;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.Collection;
 
@@ -46,8 +44,13 @@ public class Car {
         return car;
     }
 
+    public ResponseCar toResponseCar(){
+        return new ResponseCar(id, userId.toString(), brand, model, year, category,engine,
+                odometer, numberPlate);
+    }
+
     public String toString(){
-        return "[ id: "+id+", userId: "+userId+", brand: "+brand+", model: "+model+", year: "+String.valueOf(year)+", category: "+
-                category+", engine: "+engine+", odometer: "+String.valueOf(odometer)+", numberPlate: "+numberPlate;
+        return "[ id: "+id+", userId: "+userId+", brand: "+brand+", model: "+model+", year: "+year+", category: "+
+                category+", engine: "+engine+", odometer: "+odometer+", numberPlate: "+numberPlate;
     }
 }
