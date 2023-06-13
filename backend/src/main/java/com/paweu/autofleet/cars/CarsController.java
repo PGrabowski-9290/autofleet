@@ -1,6 +1,6 @@
 package com.paweu.autofleet.cars;
 
-import com.paweu.autofleet.cars.request.RequestNewCar;
+import com.paweu.autofleet.cars.request.RequestCarData;
 import com.paweu.autofleet.cars.response.ResponseCar;
 import com.paweu.autofleet.cars.response.ResponseCarsList;
 import com.paweu.autofleet.cars.response.ResponseDeleted;
@@ -34,7 +34,7 @@ public class CarsController {
 
     @PostMapping("/add")
     public Mono<ResponseEntity<ResponseCar>> addNewCar(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth,
-                                             @RequestBody RequestNewCar reqNewCar){
+                                             @RequestBody RequestCarData reqNewCar){
 
         Car car = Car.fromRequestNew(reqNewCar);
         car.setUserId(new ObjectId(auth.getId()));
@@ -54,5 +54,17 @@ public class CarsController {
         return carId.map(s -> carServiceDb.deleteCar(s)
                 .map(it -> ResponseEntity.ok().body(new ResponseDeleted(it.getDeletedCount() == 1)))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))).orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
+    }
+
+    @PutMapping(value = {"/", "/{id}"})
+    public Mono<ResponseEntity<ResponseCar>> updateCar(@PathVariable(name = "id") Optional<String> carId,
+                                                       @RequestBody RequestCarData reqCar,
+                                                       @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
+        Car updateCar = Car.fromRequestNew(reqCar);
+        updateCar.setUserId(new ObjectId(auth.getId()));
+        return carId.map(s -> carServiceDb.updateCar(s,updateCar)
+                        .map(it -> ResponseEntity.ok().body(it.toResponseCar()))
+                        .switchIfEmpty(Mono.just(ResponseEntity.notFound().build())))
+                .orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
     }
 }

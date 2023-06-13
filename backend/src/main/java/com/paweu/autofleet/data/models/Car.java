@@ -2,7 +2,7 @@ package com.paweu.autofleet.data.models;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.paweu.autofleet.cars.request.RequestNewCar;
+import com.paweu.autofleet.cars.request.RequestCarData;
 import com.paweu.autofleet.cars.response.ResponseCar;
 import lombok.*;
 import org.bson.types.ObjectId;
@@ -31,7 +31,7 @@ public class Car {
     private String numberPlate;
     private Collection<Events> events;
 
-    public static Car fromRequestNew(RequestNewCar req){
+    public static Car fromRequestNew(RequestCarData req){
         Car car = new Car();
         car.setBrand(req.brand());
         car.setModel(req.model());
