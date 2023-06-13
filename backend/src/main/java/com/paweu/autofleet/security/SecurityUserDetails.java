@@ -53,4 +53,9 @@ public class SecurityUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString(){
+        return super.toString()+" : [ id: "+id+ ", email: "+email+" ]";
+    }
 }

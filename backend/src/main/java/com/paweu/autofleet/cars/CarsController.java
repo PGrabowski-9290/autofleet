@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/car")
 public class CarsController {
@@ -40,16 +42,17 @@ public class CarsController {
                 .map(it -> ResponseEntity.ok().body(it.toResponseCar()));
     }
 
-    @GetMapping(value = {"/", "/{id}"})
-    public Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") String carId){
-        return carServiceDb.getCar(carId)
+    @GetMapping(value = {"/","/{id}"})
+    public Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<String> carId){
+        return carId.map(s -> carServiceDb.getCar(s)
                 .map(it -> ResponseEntity.ok().body(it.toResponseCar()))
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))).orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
     }
 
     @DeleteMapping(value = {"/", "/{id}"})
-    public Mono<ResponseEntity<?>> deleteCar(@PathVariable String id){
-        return carServiceDb.deleteCar(id)
-                .map(it -> ResponseEntity.ok().body(new ResponseDeleted(it.getDeletedCount() == 1)));
+    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<String> carId){
+        return carId.map(s -> carServiceDb.deleteCar(s)
+                .map(it -> ResponseEntity.ok().body(new ResponseDeleted(it.getDeletedCount() == 1)))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))).orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
     }
 }
