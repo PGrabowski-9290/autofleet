@@ -2,7 +2,9 @@ package com.paweu.autofleet.data.service;
 
 import com.paweu.autofleet.data.models.User;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -25,4 +27,15 @@ public class UserServiceDb {
         return mongoTemplate.save(user);
     }
 
+
+    public Mono<User> updateJWT(String jwt, String id){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(id));
+
+        return mongoTemplate.findOne(query, User.class)
+                .flatMap(user -> {
+                    user.setRefToken(jwt);
+                    return mongoTemplate.save(user);
+                });
+    }
 }
