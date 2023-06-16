@@ -1,6 +1,6 @@
 package com.paweu.autofleet.security;
 
-import com.paweu.autofleet.data.service.UserServiceDb;
+import com.paweu.autofleet.data.repository.UserRepository;
 import com.paweu.autofleet.service.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,20 +13,20 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class AuthFilter implements WebFilter {
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
-    private UserServiceDb userServiceDb;
+    private final UserRepository userRepository;
 
-    public AuthFilter(JwtService jwtService, UserServiceDb userServiceDb) {
+    public AuthFilter(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
-        this.userServiceDb = userServiceDb;
+        this.userRepository = userRepository;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         try {
             String email = jwtService.validateAccess(getJwtToken(exchange));
-            Mono<SecurityUserDetails> user = userServiceDb.findByEmail(email).mapNotNull(SecurityUserDetails::new);
+            Mono<SecurityUserDetails> user = userRepository.findByEmail(email).mapNotNull(SecurityUserDetails::new);
 
             return user.flatMap(u -> {
                 var auth = new UsernamePasswordAuthenticationToken(u, u.getUsername(), u.getAuthorities());

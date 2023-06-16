@@ -1,19 +1,18 @@
-package com.paweu.autofleet.data.service;
+package com.paweu.autofleet.data.repository;
 
 import com.paweu.autofleet.data.models.User;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-@Service
-public class UserServiceDb {
+@Repository
+public class UserRepository {
 
-    public UserServiceDb(ReactiveMongoTemplate mongoTemplate) {
+    public UserRepository(ReactiveMongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

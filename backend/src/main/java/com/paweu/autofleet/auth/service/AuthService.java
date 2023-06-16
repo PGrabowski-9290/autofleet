@@ -3,7 +3,7 @@ package com.paweu.autofleet.auth.service;
 import com.paweu.autofleet.auth.response.LoginResponse;
 import com.paweu.autofleet.auth.response.RegisterResponse;
 import com.paweu.autofleet.data.models.User;
-import com.paweu.autofleet.data.service.UserServiceDb;
+import com.paweu.autofleet.data.repository.UserRepository;
 import com.paweu.autofleet.service.JwtService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,25 +17,27 @@ import reactor.core.publisher.Mono;
 @Service
 public class AuthService {
     @Autowired
-    private UserServiceDb userServiceDb;
+    private UserRepository userRepository;
+
     @Autowired
     private JwtService jwtService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private ResponseEntity<LoginResponse> generateLoginResponse(User user){
+        ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(user.getEmail()))
+                .httpOnly(true)
+                .maxAge(jwtService.getRefreshTokenExpires())
+                .build();
+        String accessToken = jwtService.generateAccessToken(user.getEmail());
+        return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken, user.getUsername()));
+    }
 
     public Mono<ResponseEntity<LoginResponse>> login(@NonNull String email, @NonNull String password){
-        return userServiceDb.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .map(user -> {
-                    ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(email))
-                            .httpOnly(true)
-                            .maxAge(jwtService.getRefreshTokenExpires())
-                            .build();
-                    String accessToken = jwtService.generateAccessToken(email);
-                    return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken, user.getUsername()));
-                })
+                .map(this::generateLoginResponse)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 
@@ -45,7 +47,7 @@ public class AuthService {
                 passwordEncoder.encode(password),
                 username
             ))
-            .flatMap(userServiceDb::save)
+            .flatMap(userRepository::save)
                 .map(user -> ResponseEntity.ok().body(
                         new RegisterResponse(
                                 "regisetered",
