@@ -22,6 +22,14 @@ public class UserRepository {
         return mongoTemplate.findOne(Query.query(where("email").is(email)), User.class);
     }
 
+    public Mono<User> findByEmailAndRefToken(String email, String refToken){
+        Query query = new Query();
+        query.addCriteria(where("email").is(email));
+        query.addCriteria(where("refToken").is(refToken));
+        query.fields().exclude("password");
+        return mongoTemplate.findOne(query, User.class);
+    }
+
     public Mono<User> save(User user){
         return mongoTemplate.save(user);
     }

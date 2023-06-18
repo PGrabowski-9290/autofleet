@@ -25,18 +25,10 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private ResponseEntity<LoginResponse> generateLoginResponse(User user){
-        ResponseCookie refCookie = ResponseCookie.from("jwt", jwtService.generateRefreshToken(user.getEmail()))
-                .httpOnly(true)
-                .maxAge(jwtService.getRefreshTokenExpires())
-                .build();
-        String accessToken = jwtService.generateAccessToken(user.getEmail());
-        return ResponseEntity.ok().header("Set-Cookie", refCookie.toString()).body(new LoginResponse(accessToken, user.getUsername()));
-    }
-
     public Mono<ResponseEntity<LoginResponse>> login(@NonNull String email, @NonNull String password){
         return userRepository.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .flatMap(this::updateUserJWT)
                 .map(this::generateLoginResponse)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
@@ -54,5 +46,29 @@ public class AuthService {
                                 jwtService.generateAccessToken(user.getEmail())
                         )
                 ));
+    }
+
+    public Mono<ResponseEntity<LoginResponse>> refresh(String cookieJwt){
+        return Mono.just(jwtService.validateRefresh(cookieJwt))
+                .flatMap(email -> userRepository.findByEmailAndRefToken(email,cookieJwt))
+                .flatMap(this::updateUserJWT)
+                .map(this::generateLoginResponse)
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
+    }
+
+    private Mono<User> updateUserJWT(User user){
+        user.setRefToken(jwtService.generateRefreshToken(user.getEmail()));
+        return userRepository.updateJWT(user.getRefToken(), user.getUserId());
+    }
+
+    private ResponseEntity<LoginResponse> generateLoginResponse(User user){
+        ResponseCookie refCookie = ResponseCookie.from("jwt", user.getRefToken())
+                .httpOnly(true)
+                .maxAge(jwtService.getRefreshTokenExpires())
+                .build();
+        String accessToken = jwtService.generateAccessToken(user.getEmail());
+        return ResponseEntity.ok()
+                .header("Set-Cookie", refCookie.toString())
+                .body(new LoginResponse(accessToken, user.getUsername()));
     }
 }
