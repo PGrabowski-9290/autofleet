@@ -3,10 +3,13 @@ package com.paweu.autofleet.auth;
 import com.paweu.autofleet.auth.request.LoginRequest;
 import com.paweu.autofleet.auth.request.RegisterRequest;
 import com.paweu.autofleet.auth.response.LoginResponse;
+import com.paweu.autofleet.auth.response.LogoutResponse;
 import com.paweu.autofleet.auth.response.RegisterResponse;
 import com.paweu.autofleet.auth.service.AuthService;
+import com.paweu.autofleet.security.SecurityUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import reactor.core.publisher.Mono;
@@ -33,5 +36,10 @@ public class AuthController {
     @GetMapping("/refresh")
     public Mono<ResponseEntity<LoginResponse>> refresh(@CookieValue(name = "jwt") String cookie){
         return authService.refresh(cookie);
+    }
+
+    @GetMapping("/logout")
+    public Mono<ResponseEntity<LogoutResponse>> logout(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
+        return null;
     }
 }
