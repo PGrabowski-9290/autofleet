@@ -1,9 +1,11 @@
 package com.paweu.autofleet.auth.service;
 
 import com.paweu.autofleet.auth.response.LoginResponse;
+import com.paweu.autofleet.auth.response.LogoutResponse;
 import com.paweu.autofleet.auth.response.RegisterResponse;
 import com.paweu.autofleet.data.models.User;
 import com.paweu.autofleet.data.repository.UserRepository;
+import com.paweu.autofleet.security.SecurityUserDetails;
 import com.paweu.autofleet.service.JwtService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,24 +53,41 @@ public class AuthService {
     public Mono<ResponseEntity<LoginResponse>> refresh(String cookieJwt){
         return Mono.just(jwtService.validateRefresh(cookieJwt))
                 .flatMap(email -> userRepository.findByEmailAndRefToken(email,cookieJwt))
-                .flatMap(this::updateUserJWT)
+                .flatMap(user -> {
+                    user.setRefToken(jwtService.generateRefreshToken(user.getEmail()));
+                    return updateUserJWT(user);
+                })
                 .map(this::generateLoginResponse)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 
+    public Mono<ResponseEntity<LogoutResponse>> logout(SecurityUserDetails auth){
+        return userRepository.findByEmail(auth.getUsername())
+                .flatMap(user -> {
+                    user.setRefToken("");
+                    return updateUserJWT(user);
+                })
+                .map(user -> ResponseEntity.ok().
+                        header("Set-Cookie", generateCookie("", 0))
+                        .body(new LogoutResponse("wylogowano")));
+    }
+
     private Mono<User> updateUserJWT(User user){
-        user.setRefToken(jwtService.generateRefreshToken(user.getEmail()));
         return userRepository.updateJWT(user.getRefToken(), user.getUserId());
     }
 
     private ResponseEntity<LoginResponse> generateLoginResponse(User user){
-        ResponseCookie refCookie = ResponseCookie.from("jwt", user.getRefToken())
-                .httpOnly(true)
-                .maxAge(jwtService.getRefreshTokenExpires())
-                .build();
+        String refCookie = generateCookie(user.getRefToken(),jwtService.getRefreshTokenExpires());
         String accessToken = jwtService.generateAccessToken(user.getEmail());
         return ResponseEntity.ok()
-                .header("Set-Cookie", refCookie.toString())
+                .header("Set-Cookie", refCookie)
                 .body(new LoginResponse(accessToken, user.getUsername()));
+    }
+
+    private String generateCookie(String value, long age){
+        return ResponseCookie.from("jwt", value)
+                .httpOnly(true)
+                .maxAge(age)
+                .build().toString();
     }
 }

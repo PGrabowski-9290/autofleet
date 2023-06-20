@@ -40,6 +40,6 @@ public class AuthController {
 
     @GetMapping("/logout")
     public Mono<ResponseEntity<LogoutResponse>> logout(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
-        return null;
+        return authService.logout(auth);
     }
 }
