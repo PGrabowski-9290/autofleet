@@ -20,28 +20,28 @@ public class CarsController {
     @Autowired
     private CarsService carsService;
 
-    @GetMapping("/list")
+    @GetMapping("/")
     public Mono<ResponseEntity<ResponseCarsList>> getListCars(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
         return carsService.getListCars(auth);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/")
     public Mono<ResponseEntity<ResponseCar>> addNewCar(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth,
                                              @RequestBody RequestCarData reqNewCar){
         return carsService.addCar(reqNewCar, auth);
     }
 
-    @GetMapping(value = {"/","/{id}"})
+    @GetMapping("/{id}")
     public Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<String> carId){
         return carsService.getCar(carId);
     }
 
-    @DeleteMapping(value = {"/", "/{id}"})
+    @DeleteMapping("/{id}")
     public Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<String> carId){
         return carsService.deleteCar(carId);
     }
 
-    @PutMapping(value = {"/", "/{id}"})
+    @PutMapping("/{id}")
     public Mono<ResponseEntity<ResponseCar>> updateCar(@PathVariable(name = "id") Optional<String> carId,
                                                        @RequestBody RequestCarData reqCar,
                                                        @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
