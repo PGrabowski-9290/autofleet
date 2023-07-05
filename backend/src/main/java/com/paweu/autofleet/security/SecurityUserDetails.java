@@ -5,11 +5,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.UUID;
 
 public class SecurityUserDetails implements UserDetails {
 
     private String email;
-    private String id;
+    private UUID id;
 
     public SecurityUserDetails(User user){
         this.email = user.getEmail();
@@ -30,7 +31,7 @@ public class SecurityUserDetails implements UserDetails {
         return email;
     }
 
-    public String getId(){
+    public UUID getId(){
         return id;
     }
 

@@ -30,7 +30,10 @@ public class AuthService {
     public Mono<ResponseEntity<LoginResponse>> login(@NonNull String email, @NonNull String password){
         return userRepository.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .flatMap(this::updateUserJWT)
+                .flatMap(user -> {
+                    user.setRefToken(jwtService.generateRefreshToken(user.getEmail()));
+                    return userRepository.save(user);
+                })
                 .map(this::generateLoginResponse)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
@@ -39,11 +42,15 @@ public class AuthService {
         return Mono.just(new User(
                 email,
                 passwordEncoder.encode(password),
-                username
+                username,
+                jwtService.generateRefreshToken(email)
             ))
             .flatMap(userRepository::save)
-                .map(user -> ResponseEntity.ok().body(
-                        new RegisterResponse(
+                .cast(User.class)
+                .map(user -> ResponseEntity.ok()
+                        .header("Set-Cookie", generateCookie(user.getRefToken(),jwtService.getRefreshTokenExpires()))
+                        .body(
+                            new RegisterResponse(
                                 "regisetered",
                                 jwtService.generateAccessToken(user.getEmail())
                         )
@@ -53,9 +60,10 @@ public class AuthService {
     public Mono<ResponseEntity<LoginResponse>> refresh(String cookieJwt){
         return Mono.just(jwtService.validateRefresh(cookieJwt))
                 .flatMap(email -> userRepository.findByEmailAndRefToken(email,cookieJwt))
+                .cast(User.class)
                 .flatMap(user -> {
                     user.setRefToken(jwtService.generateRefreshToken(user.getEmail()));
-                    return updateUserJWT(user);
+                    return userRepository.save(user);
                 })
                 .map(this::generateLoginResponse)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
@@ -65,15 +73,11 @@ public class AuthService {
         return userRepository.findByEmail(auth.getUsername())
                 .flatMap(user -> {
                     user.setRefToken("");
-                    return updateUserJWT(user);
+                    return userRepository.save(user);
                 })
                 .map(user -> ResponseEntity.ok().
                         header("Set-Cookie", generateCookie("", 0))
                         .body(new LogoutResponse("wylogowano")));
-    }
-
-    private Mono<User> updateUserJWT(User user){
-        return userRepository.updateJWT(user.getRefToken(), user.getUserId());
     }
 
     private ResponseEntity<LoginResponse> generateLoginResponse(User user){

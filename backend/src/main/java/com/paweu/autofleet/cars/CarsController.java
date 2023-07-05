@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/car")
@@ -32,17 +33,17 @@ public class CarsController {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<String> carId){
+    public Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<UUID> carId){
         return carsService.getCar(carId);
     }
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<String> carId){
+    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<UUID> carId){
         return carsService.deleteCar(carId);
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<ResponseCar>> updateCar(@PathVariable(name = "id") Optional<String> carId,
+    public Mono<ResponseEntity<ResponseCar>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
                                                        @RequestBody RequestCarData reqCar,
                                                        @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
         return carsService.updateCar(carId, reqCar, auth);

@@ -2,9 +2,10 @@ package com.paweu.autofleet.cars.request;
 
 public record RequestCarData(String brand,
                              String model,
-                             String category,
                              int year,
-                             String engine,
+                             String carType,
+                             String engineType,
+                             String engineSize,
                              int odometer,
                              String numberPlate) {
 }

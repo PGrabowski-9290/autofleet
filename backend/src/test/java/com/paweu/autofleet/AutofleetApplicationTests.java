@@ -17,11 +17,4 @@ class AutofleetApplicationTests {
 	void contextLoads() {
 	}
 
-	@Test
-	void jwtRefreshDb(){
-		User user = userRepository.updateJWT("testjwt", "6484e1adf4f3676f14bf0ddd").block();
-		assert user != null;
-		Assertions.assertEquals("testjwt",user.getRefToken());
-	}
-
 }
