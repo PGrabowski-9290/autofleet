@@ -26,7 +26,7 @@ public class Events {
     private boolean oilFilter;
     @Column("air_filter")
     private boolean airFilter;
-    @Column("timming_belt_kit")
+    @Column("timing_belt_kit")
     private boolean timingBeltKit;
     @Column("description")
     private String description;
