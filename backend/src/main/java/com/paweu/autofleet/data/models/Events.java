@@ -1,26 +1,33 @@
 package com.paweu.autofleet.data.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Collection;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
+@Data
+@Table("public.event")
 public class Events {
-    @Id
-    @JsonSerialize(using = ToStringSerializer.class)
-    private String id;
-    private String date;
+    @Id @Column("event_id")
+    private UUID id;
+    @Column("event_date")
+    private LocalDate date;
+    @Column("last_update")
+    private Timestamp lastUpdate;
+    @Column("odometer")
     private int odometer;
-    private Collection<String> list;
+    @Column("oil")
+    private boolean oil;
+    @Column("oil_filter")
+    private boolean oilFilter;
+    @Column("air_filter")
+    private boolean airFilter;
+    @Column("timming_belt_kit")
+    private boolean timingBeltKit;
+    @Column("description")
     private String description;
-    private Collection<Invoice> invoices;
 }

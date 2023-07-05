@@ -1,16 +1,23 @@
 package com.paweu.autofleet.data.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
+import java.util.UUID;
+
+@Data
+@Table("public.invoicePosition")
 public class InvoicePos {
+    @Id @Column("id")
+    private UUID id;
+    @Column("invoice_id")
+    private UUID invoiceId;
+    @Column("name")
     private String name;
-    private float price;
-    private int total;
+    @Column("price")
+    private long price;
+    @Column("quantity")
+    private int quantity;
 }

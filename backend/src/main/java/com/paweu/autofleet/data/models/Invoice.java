@@ -1,30 +1,31 @@
 package com.paweu.autofleet.data.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.bson.types.Binary;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Collection;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
-@Getter
-@Document(collection = "invoices")
+import java.util.UUID;
+
+@Data
+@Table("public.invoice")
 public class Invoice {
 
-    @Id
-    @JsonSerialize(using = ToStringSerializer.class)
-    private String id;
-    private String date;
+    @Id @Column("id")
+    private UUID id;
+    @Column("user_id")
+    private UUID userId;
+    @Column("event_id")
+    private UUID eventId;
+    @Column("invoice_date")
+    private LocalDate date;
+    @Column("invoice_number")
     private String invoiceNumber;
-    private float total;
-    private Binary invoiceBinary;
-    private Collection<InvoicePos> positions;
+    @Column("currency")
+    private String currency;
+    @Column("last_update")
+    private Timestamp lastUpdate;
 }
