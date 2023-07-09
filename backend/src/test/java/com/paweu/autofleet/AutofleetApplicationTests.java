@@ -10,11 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class AutofleetApplicationTests {
 
-	@Autowired
-	private UserRepository userRepository;
-
 	@Test
 	void contextLoads() {
 	}
-
 }
