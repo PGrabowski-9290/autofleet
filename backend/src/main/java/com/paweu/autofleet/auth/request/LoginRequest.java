@@ -1,5 +1,11 @@
 package com.paweu.autofleet.auth.request;
 
-public record LoginRequest(String email,
-                           String password) {
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+public record LoginRequest(
+        @NotNull(message = "Email is required") @NotEmpty(message = "Brand is required")
+        String email,
+        @NotNull(message = "Password is required") @NotEmpty(message = "Password is required")
+        String password) {
 }

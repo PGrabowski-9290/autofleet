@@ -6,6 +6,7 @@ import com.paweu.autofleet.cars.response.ResponseCarsList;
 import com.paweu.autofleet.cars.response.ResponseDeleted;
 import com.paweu.autofleet.cars.service.CarsService;
 import com.paweu.autofleet.security.SecurityUserDetails;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -28,7 +29,7 @@ public class CarsController {
 
     @PostMapping("/")
     public Mono<ResponseEntity<ResponseCar>> addNewCar(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth,
-                                             @RequestBody RequestCarData reqNewCar){
+                                             @RequestBody @Valid RequestCarData reqNewCar){
         return carsService.addCar(reqNewCar, auth);
     }
 
@@ -44,7 +45,7 @@ public class CarsController {
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<ResponseCar>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
-                                                       @RequestBody RequestCarData reqCar,
+                                                       @RequestBody @Valid RequestCarData reqCar,
                                                        @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
         return carsService.updateCar(carId, reqCar, auth);
     }
