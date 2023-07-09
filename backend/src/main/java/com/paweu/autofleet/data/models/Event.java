@@ -45,17 +45,17 @@ public class Event {
     @Column("description")
     private String description;
 
-    public Event(RequestNewEvent newEvent) {
-        this.lastUpdate = new Timestamp(new Date().getTime());
-        this.carId = newEvent.carId();
-        this.date = newEvent.eventDate();
-        this.odometer = newEvent.odometer();
-        this.oil = newEvent.oil();
-        this.oilFilter = newEvent.oilFilter();
-        this.airFilter = newEvent.airFilter();
-        this.timingBeltKit = newEvent.timingBeltKit();
-        this.description = newEvent.description();
-    }
+//    public Event(RequestNewEvent newEvent) {
+//        this.lastUpdate = new Timestamp(new Date().getTime());
+//        this.carId = newEvent.carId();
+//        this.date = newEvent.eventDate();
+//        this.odometer = newEvent.odometer();
+//        this.oil = newEvent.oil();
+//        this.oilFilter = newEvent.oilFilter();
+//        this.airFilter = newEvent.airFilter();
+//        this.timingBeltKit = newEvent.timingBeltKit();
+//        this.description = newEvent.description();
+//    }
 
     public ResponseEvent toResponseEvent(){
         return new ResponseEvent(this.id, this.carId, this.date, this.lastUpdate, this.odometer, this.oil,

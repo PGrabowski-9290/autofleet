@@ -22,7 +22,7 @@ public class EventController {
     private final EventService eventService;
     @PostMapping("/")
     public Mono<ResponseEntity<ResponseEvent>> addEvent(@RequestBody @Valid RequestNewEvent newEvent){
-        return eventService.addNewEvent(new Event(newEvent));
+        return eventService.addNewEvent(newEvent);
     }
 
     @GetMapping("/{id}")

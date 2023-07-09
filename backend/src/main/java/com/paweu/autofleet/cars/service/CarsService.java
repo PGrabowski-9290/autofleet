@@ -7,7 +7,7 @@ import com.paweu.autofleet.cars.response.ResponseDeleted;
 import com.paweu.autofleet.data.models.Car;
 import com.paweu.autofleet.data.repository.CarRepository;
 import com.paweu.autofleet.security.SecurityUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,10 +15,10 @@ import reactor.core.publisher.Mono;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class CarsService {
-    @Autowired
-    private CarRepository carRepository;
+    private final CarRepository carRepository;
 
     public Mono<ResponseEntity<ResponseCarsList>> getListCars(SecurityUserDetails user) {
         return carRepository.findAllByUserId(user.getId())
@@ -27,9 +27,18 @@ public class CarsService {
     }
 
     public Mono<ResponseEntity<ResponseCar>> addCar(RequestCarData reqNewCar, SecurityUserDetails auth) {
-        Car car = Car.fromRequestNew(reqNewCar);
-        car.setUserId(auth.getId());
-        return carRepository.save(car)
+        Car newCar = Car.builder()
+                .brand(reqNewCar.brand())
+                .model(reqNewCar.model())
+                .year(reqNewCar.year())
+                .carType(reqNewCar.carType())
+                .engineType(reqNewCar.engineType())
+                .engineSize(reqNewCar.engineSize())
+                .odometer(reqNewCar.odometer())
+                .numberPlate(reqNewCar.numberPlate())
+                        .build();
+        newCar.setUserId(auth.getId());
+        return carRepository.save(newCar)
                 .map(it -> ResponseEntity.ok().body(it.toResponseCar()));
     }
 
@@ -46,10 +55,18 @@ public class CarsService {
                 .orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
     }
 
-    public Mono<ResponseEntity<ResponseCar>> updateCar(Optional<UUID> carId, RequestCarData reqCar, SecurityUserDetails auth) {
+    public Mono<ResponseEntity<ResponseCar>> updateCar(Optional<UUID> carId, RequestCarData reqCar,
+                                                       SecurityUserDetails auth) {
         return carId.map(s -> carRepository.findById(s)
                         .flatMap(car -> {
-                            car.update(reqCar);
+                            car.setBrand(reqCar.brand());
+                            car.setModel(reqCar.model());
+                            car.setYear(reqCar.year());
+                            car.setCarType(reqCar.carType());
+                            car.setEngineSize(reqCar.engineSize());
+                            car.setEngineType(reqCar.engineType());
+                            car.setOdometer(reqCar.odometer());
+                            car.setNumberPlate(reqCar.numberPlate());
                             car.setUserId(auth.getId());
                             return carRepository.save(car);
                         })
