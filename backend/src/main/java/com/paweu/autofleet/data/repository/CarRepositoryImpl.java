@@ -87,7 +87,14 @@ public class CarRepositoryImpl implements CarRepository{
                 .bind("engineSize", car.getEngineSize())
                 .bind("odometer", car.getOdometer())
                 .bind("numberPlate", car.getNumberPlate())
-                .fetch().rowsUpdated();
+                .fetch()
+                .rowsUpdated()
+                .flatMap(val -> {
+                    if( val != 0)
+                        return Mono.just(val);
+                    else
+                        return Mono.empty();
+                });
     }
 
     @Override
@@ -97,6 +104,12 @@ public class CarRepositoryImpl implements CarRepository{
                 """)
                 .bind("carId", s)
                 .fetch()
-                .rowsUpdated();
+                .rowsUpdated()
+                .flatMap(res -> {
+                    if (res != 0)
+                        return Mono.just(res);
+                    else
+                        return Mono.empty();
+                });
     }
 }
