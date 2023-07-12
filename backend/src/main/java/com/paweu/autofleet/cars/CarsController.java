@@ -4,6 +4,7 @@ import com.paweu.autofleet.cars.request.RequestCarData;
 import com.paweu.autofleet.cars.response.ResponseCar;
 import com.paweu.autofleet.cars.response.ResponseCarsList;
 import com.paweu.autofleet.cars.response.ResponseDeleted;
+import com.paweu.autofleet.cars.response.ResponseUpdate;
 import com.paweu.autofleet.cars.service.CarsService;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import jakarta.validation.Valid;
@@ -43,10 +44,10 @@ public class CarsController {
         return carsService.deleteCar(carId);
     }
 
-    @PutMapping("/{id}")
-    public Mono<ResponseEntity<ResponseCar>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
-                                                       @RequestBody @Valid RequestCarData reqCar,
-                                                       @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
+    @PatchMapping("/{id}")
+    public Mono<ResponseEntity<ResponseUpdate>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
+                                                          @RequestBody @Valid RequestCarData reqCar,
+                                                          @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
         return carsService.updateCar(carId, reqCar, auth);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -44,7 +45,7 @@ public class EventService {
         return eventRepository.findById(eventId)
                 .map(event -> {
                     event.setDate(eventData.eventDate());
-                    event.setLastUpdate(new Timestamp(new Date().getTime()));
+                    event.setLastUpdate(LocalDateTime.now());
                     event.setOdometer(eventData.odometer());
                     event.setOil(eventData.oil());
                     event.setOilFilter(eventData.oilFilter());

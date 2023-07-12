@@ -4,6 +4,7 @@ import com.paweu.autofleet.cars.request.RequestCarData;
 import com.paweu.autofleet.cars.response.ResponseCar;
 import com.paweu.autofleet.cars.response.ResponseCarsList;
 import com.paweu.autofleet.cars.response.ResponseDeleted;
+import com.paweu.autofleet.cars.response.ResponseUpdate;
 import com.paweu.autofleet.data.models.Car;
 import com.paweu.autofleet.data.repository.CarRepository;
 import com.paweu.autofleet.security.SecurityUserDetails;
@@ -51,12 +52,12 @@ public class CarsService {
 
     public Mono<ResponseEntity<ResponseDeleted>> deleteCar(Optional<UUID> carId) {
         return carId.map(s -> carRepository.deleteById(s)
-                        .then(Mono.fromCallable(() -> ResponseEntity.ok().body(new ResponseDeleted(true)))))  //to coś to trzeba poprawić
+                        .map(res -> ResponseEntity.ok().body(new ResponseDeleted(res))))
                 .orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
     }
 
-    public Mono<ResponseEntity<ResponseCar>> updateCar(Optional<UUID> carId, RequestCarData reqCar,
-                                                       SecurityUserDetails auth) {
+    public Mono<ResponseEntity<ResponseUpdate>> updateCar(Optional<UUID> carId, RequestCarData reqCar,
+                                                          SecurityUserDetails auth) {
         return carId.map(s -> carRepository.findById(s)
                         .flatMap(car -> {
                             car.setBrand(reqCar.brand());
@@ -68,9 +69,9 @@ public class CarsService {
                             car.setOdometer(reqCar.odometer());
                             car.setNumberPlate(reqCar.numberPlate());
                             car.setUserId(auth.getId());
-                            return carRepository.save(car);
+                            return carRepository.update(car);
                         })
-                        .map(it -> ResponseEntity.ok().body(it.toResponseCar()))
+                        .map(it -> ResponseEntity.ok().body(new ResponseUpdate(it)))
                         .switchIfEmpty(Mono.just(ResponseEntity.notFound().build())))
                 .orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
     }

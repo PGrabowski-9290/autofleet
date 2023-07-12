@@ -1,4 +1,4 @@
 package com.paweu.autofleet.cars.response;
 
-public record ResponseDeleted(Long deleted) {
+public record ResponseUpdate(Long updated) {
 }

@@ -6,11 +6,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,7 +27,7 @@ public class Car {
     @Column("model")
     private String model;
     @Column("car_year")
-    private int year;
+    private Integer year;
     @Column("car_type")
     private String carType;
     @Column("engine_type")
@@ -35,17 +35,41 @@ public class Car {
     @Column("engine_size")
     private String engineSize;
     @Column("odometer")
-    private int odometer;
+    private Integer odometer;
     @Column("number_plate")
     private String numberPlate;
     @Column("last_update")
     @Builder.Default
-    private Timestamp lastUpdate = new Timestamp(new Date().getTime());
+    private LocalDateTime lastUpdate = LocalDateTime.now();
     @Transient
-    private List<UUID> carEvents;
+    @Builder.Default
+    private List<Event> carEvents = new ArrayList<>();
+
+    public static Mono<Car> fromRows(List<Map<String, Object>> rows){
+        return Mono.just(Car.builder()
+                .id(UUID.fromString(rows.get(0).get("c_car_id").toString()))
+                .userId(UUID.fromString(rows.get(0).get("c_user_id").toString()))
+                .brand((String) rows.get(0).get("c_brand"))
+                .model((String) rows.get(0).get("c_model"))
+                .year((Integer) rows.get(0).get("c_car_year"))
+                .carType((String) rows.get(0).get("c_car_type"))
+                .engineType((String) rows.get(0).get("c_engine_type"))
+                .engineSize((String) rows.get(0).get("c_engine_size"))
+                .odometer((Integer) rows.get(0).get("c_odometer"))
+                .numberPlate((String) rows.get(0).get("c_number_plate"))
+                .lastUpdate((LocalDateTime) rows.get(0).get("c_last_update"))
+                        .carEvents(rows.stream()
+                                .map(Event::fromCarRow)
+                                .filter(Objects::nonNull)
+                                .toList())
+                .build()
+        );
+
+    }
+
 
     public ResponseCar toResponseCar(){
         return new ResponseCar(id.toString(), userId.toString(), brand, model, year, carType, engineType,
-                engineSize, odometer, numberPlate, lastUpdate);
+                engineSize, odometer, numberPlate, lastUpdate, carEvents);
     }
 }
