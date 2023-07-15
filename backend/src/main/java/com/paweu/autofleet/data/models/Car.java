@@ -8,7 +8,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import reactor.core.publisher.Mono;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -59,7 +58,7 @@ public class Car {
                 .numberPlate((String) rows.get(0).get("c_number_plate"))
                 .lastUpdate((LocalDateTime) rows.get(0).get("c_last_update"))
                         .carEvents(rows.stream()
-                                .map(Event::fromCarRow)
+                                .map(Event::fromRow)
                                 .filter(Objects::nonNull)
                                 .toList())
                 .build()

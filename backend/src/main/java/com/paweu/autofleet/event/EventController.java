@@ -1,10 +1,10 @@
 package com.paweu.autofleet.event;
 
 
-import com.paweu.autofleet.data.models.Event;
 import com.paweu.autofleet.event.request.RequestNewEvent;
 import com.paweu.autofleet.event.request.RequestUpdateEvent;
 import com.paweu.autofleet.event.response.ResponseEvent;
+import com.paweu.autofleet.event.response.ResponseEventDetails;
 import com.paweu.autofleet.event.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<ResponseEvent>> getEvent(@PathVariable UUID id){
+    public Mono<ResponseEntity<ResponseEventDetails>> getEvent(@PathVariable UUID id){
         return eventService.getEvent(id);
     }
 
