@@ -9,7 +9,6 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 
 import java.time.LocalDateTime;
@@ -42,9 +41,16 @@ public class Invoice {
     @Transient
     private BigDecimal total;
 
-    public static Invoice fromRows(List<Map<String, Object>> rows){
+    public void calcTotal(){
+        this.total = invoicePosList.stream()
+                .map(row -> row.getPrice().multiply(row.getQuantity()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static Invoice fromRow(List<Map<String, Object>> rows){
         if(rows.get(0).get("inv_id") != null){
-            return Invoice.builder()
+            Invoice newInvoice = Invoice.builder()
                     .id((UUID) rows.get(0).get("inv_id"))
                     .userId((UUID) rows.get(0).get("inv_user_id"))
                     .eventId((UUID) rows.get(0).get("e_event_id"))
@@ -52,17 +58,24 @@ public class Invoice {
                     .invoiceNumber((String) rows.get(0).get("inv_invoice_number"))
                     .currency((String) rows.get(0).get("inv_currency"))
                     .lastUpdate((LocalDateTime) rows.get(0).get("inv_last_update"))
-                    .total(rows.stream()
-                            .map(row -> ((BigDecimal) row.get("invpos_price")).multiply((BigDecimal) row.get("invpos_quantity")))
-                            .reduce(BigDecimal.ZERO, BigDecimal::add)
-                            .setScale(2, RoundingMode.HALF_UP))
+//                    .total(rows.stream()
+//                            .map(row -> ((BigDecimal) row.get("invpos_price")).multiply((BigDecimal) row.get("invpos_quantity")))
+//                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+//                            .setScale(2, RoundingMode.HALF_UP))
                     .invoicePosList(rows.stream()
                             .map(InvoicePos::fromRow)
                             .filter(Objects::nonNull)
                             .toList())
                     .build();
+            newInvoice.calcTotal();
+            return newInvoice;
         } else {
             return null;
         }
     }
+
+    public static Mono<Invoice> fromRows(List<Map<String, Object>> rows){
+        return  Mono.just(Objects.requireNonNull(Invoice.fromRow(rows)));
+    }
+
 }

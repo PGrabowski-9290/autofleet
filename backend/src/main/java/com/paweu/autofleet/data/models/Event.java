@@ -60,7 +60,7 @@ public class Event {
                 .timingBeltKit((Boolean) rows.get(0).get(0).get("e_timing_belt_kit"))
                 .description(rows.get(0).get(0).get("e_description").toString())
                 .invoices(rows.stream()
-                        .map(Invoice::fromRows)
+                        .map(Invoice::fromRow)
                         .filter(Objects::nonNull)
                         .toList())
                 .build());
