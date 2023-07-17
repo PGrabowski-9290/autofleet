@@ -31,8 +31,8 @@ public class Car {
     private String carType;
     @Column("engine_type")
     private String engineType;
-    @Column("engine_size")
-    private String engineSize;
+    @Column("engine")
+    private String engine;
     @Column("odometer")
     private Integer odometer;
     @Column("number_plate")
@@ -53,7 +53,7 @@ public class Car {
                 .year((Integer) rows.get(0).get("c_car_year"))
                 .carType((String) rows.get(0).get("c_car_type"))
                 .engineType((String) rows.get(0).get("c_engine_type"))
-                .engineSize((String) rows.get(0).get("c_engine_size"))
+                .engine((String) rows.get(0).get("c_engine"))
                 .odometer((Integer) rows.get(0).get("c_odometer"))
                 .numberPlate((String) rows.get(0).get("c_number_plate"))
                 .lastUpdate((LocalDateTime) rows.get(0).get("c_last_update"))
@@ -69,6 +69,6 @@ public class Car {
 
     public ResponseCar toResponseCar(){
         return new ResponseCar(id.toString(), userId.toString(), brand, model, year, carType, engineType,
-                engineSize, odometer, numberPlate, lastUpdate, carEvents);
+                engine, odometer, numberPlate, lastUpdate, carEvents);
     }
 }

@@ -14,8 +14,8 @@ public record RequestCarData(
         String carType,
         @NotNull(message = "EngineType is required") @NotEmpty(message = "EngineType is required")
         String engineType,
-        @NotNull(message = "EngineSize is required") @NotEmpty(message = "EngineSize is required")
-        String engineSize,
+        @NotNull(message = "Engine is required") @NotEmpty(message = "Engine is required")
+        String engine,
         @NotNull(message = "odometer is required")
         Integer odometer,
         @NotNull(message = "NumberPlate is required") @NotEmpty(message = "NumberPlate is required")

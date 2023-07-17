@@ -17,7 +17,7 @@ public class CarRepositoryImpl implements CarRepository{
 
     private static final String SELECT_QUERY = """
                 SELECT c.car_id c_car_id, user_id c_user_id, brand c_brand, model c_model, car_year c_car_year, car_type c_car_type,
-                	engine_type c_engine_type, engine_size c_engine_size, c.odometer c_odometer, number_plate c_number_plate,
+                	engine_type c_engine_type, c.engine c_engine, c.odometer c_odometer, number_plate c_number_plate,
                 	c.last_update c_last_update, e.event_id e_event_id, e.car_id e_car_id, e.event_date e_event_date, e.last_update e_last_update,
                 	e.odometer e_odometer, e.oil e_oil, e.oil_filter e_oil_filter, e.air_filter e_air_filter, e.timing_belt_kit e_timing_belt_kit,
                 	e.description e_description
@@ -49,8 +49,8 @@ public class CarRepositoryImpl implements CarRepository{
     public Mono<Car> save(Car car) {
         return databaseClient.sql("""
                     INSERT INTO public.car(
-                        user_id, brand, model, car_year, car_type, engine_type, engine_size, odometer, number_plate)
-                        VALUES ( :userId, :brand, :model, :year, :carType, :engineType, :engineSize, :odometer, :numberPlate)
+                        user_id, brand, model, car_year, car_type, engine_type, engine, odometer, number_plate)
+                        VALUES ( :userId, :brand, :model, :year, :carType, :engineType, :engine, :odometer, :numberPlate)
                 """)
                     .filter(statement -> statement.returnGeneratedValues("car_id", "last_update"))
                     .bind("userId",car.getUserId())
@@ -59,7 +59,7 @@ public class CarRepositoryImpl implements CarRepository{
                     .bind("year", car.getYear())
                     .bind("carType", car.getCarType())
                     .bind("engineType", car.getEngineType())
-                    .bind("engineSize", car.getEngineSize())
+                    .bind("engine", car.getEngine())
                     .bind("odometer", car.getOdometer())
                     .bind("numberPlate", car.getNumberPlate())
                     .fetch().first()
@@ -75,7 +75,7 @@ public class CarRepositoryImpl implements CarRepository{
         return databaseClient.sql("""
                     UPDATE public.car
                         SET brand = :brand, model= :model, car_year= :year, car_type= :carType, engine_type= :engineType,
-                        engine_size= :engineSize, odometer= :odometer, number_plate= :numberPlate, last_update= CURRENT_TIMESTAMP
+                        engine= :engine, odometer= :odometer, number_plate= :numberPlate, last_update= CURRENT_TIMESTAMP
                         WHERE car_id= :carId
                 """)
                 .bind("carId", car.getId())
@@ -84,7 +84,7 @@ public class CarRepositoryImpl implements CarRepository{
                 .bind("year", car.getYear())
                 .bind("carType", car.getCarType())
                 .bind("engineType", car.getEngineType())
-                .bind("engineSize", car.getEngineSize())
+                .bind("engine", car.getEngine())
                 .bind("odometer", car.getOdometer())
                 .bind("numberPlate", car.getNumberPlate())
                 .fetch()

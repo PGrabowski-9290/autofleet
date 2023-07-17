@@ -31,7 +31,7 @@ public class CarsService {
                 .year(reqNewCar.year())
                 .carType(reqNewCar.carType())
                 .engineType(reqNewCar.engineType())
-                .engineSize(reqNewCar.engineSize())
+                .engine(reqNewCar.engine())
                 .odometer(reqNewCar.odometer())
                 .numberPlate(reqNewCar.numberPlate())
                         .build();
@@ -62,7 +62,7 @@ public class CarsService {
                             car.setModel(reqCar.model());
                             car.setYear(reqCar.year());
                             car.setCarType(reqCar.carType());
-                            car.setEngineSize(reqCar.engineSize());
+                            car.setEngine(reqCar.engine());
                             car.setEngineType(reqCar.engineType());
                             car.setOdometer(reqCar.odometer());
                             car.setNumberPlate(reqCar.numberPlate());
