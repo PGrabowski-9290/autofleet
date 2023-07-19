@@ -46,15 +46,15 @@ public class AuthService {
                 jwtService.generateRefreshToken(email)
             ))
             .flatMap(userRepository::save)
-                .cast(User.class)
-                .map(user -> ResponseEntity.ok()
-                        .header("Set-Cookie", generateCookie(user.getRefToken(),jwtService.getRefreshTokenExpires()))
-                        .body(
-                            new RegisterResponse(
-                                "regisetered",
-                                jwtService.generateAccessToken(user.getEmail())
-                        )
-                ));
+            .cast(User.class)
+            .map(user -> ResponseEntity.ok()
+                    .header("Set-Cookie", generateCookie(user.getRefToken(),jwtService.getRefreshTokenExpires()))
+                    .body(
+                        new RegisterResponse(
+                            "Registered",
+                            jwtService.generateAccessToken(user.getEmail())
+                    )
+            ));
     }
 
     public Mono<ResponseEntity<LoginResponse>> refresh(String cookieJwt){
@@ -77,7 +77,7 @@ public class AuthService {
                 })
                 .map(user -> ResponseEntity.ok().
                         header("Set-Cookie", generateCookie("", 0))
-                        .body(new LogoutResponse("wylogowano")));
+                        .body(new LogoutResponse("Logged Out")));
     }
 
     private ResponseEntity<LoginResponse> generateLoginResponse(User user){

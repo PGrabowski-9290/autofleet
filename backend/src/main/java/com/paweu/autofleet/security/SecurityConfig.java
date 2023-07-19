@@ -16,6 +16,13 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+    private static final String[] AUTH_WHITELIST_SWAGGER = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/webjars/**"
+    };
+
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
@@ -26,7 +33,8 @@ public class SecurityConfig {
         return http
                 .authorizeExchange(ex -> {
                     ex.pathMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll();
-                    ex.pathMatchers(HttpMethod.GET, "/auth/refresh", "/v3/api-docs", "/v3/api-docs/**", "/webjars/**").permitAll();
+                    ex.pathMatchers(HttpMethod.GET, "/auth/refresh").permitAll();
+                    ex.pathMatchers(AUTH_WHITELIST_SWAGGER).permitAll();
                     ex.anyExchange().authenticated();
                 })
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
@@ -47,4 +55,6 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
     }
+
+
 }
