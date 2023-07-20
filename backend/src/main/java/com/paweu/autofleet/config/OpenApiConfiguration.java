@@ -4,17 +4,16 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import lombok.RequiredArgsConstructor;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@RequiredArgsConstructor
-public class OpenApiDocs {
-
-    private final VersionHolder versionHolder;
+public class OpenApiConfiguration {
+    @Value("#{buildProperties.version}")
+    private String version;
 
     @Bean
     public OpenAPI openApiMain(){
@@ -22,7 +21,7 @@ public class OpenApiDocs {
                 .info(new Info()
                         .title("Autofleet")
                         .description("Documentation for Autofleet API")
-                        .version(versionHolder.getVersion())
+                        .version(version)
                 )
                 .components(
                         new Components()
@@ -43,6 +42,15 @@ public class OpenApiDocs {
                 .group("main")
                 .displayName("Main API")
                 .packagesToScan("com.paweu.autofleet")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi openApiAuthorizationGroup(){
+        return GroupedOpenApi.builder()
+                .group("Authorization")
+                .displayName("API Authorization")
+                .packagesToScan("com.paweu.autofleet.auth")
                 .build();
     }
 }
