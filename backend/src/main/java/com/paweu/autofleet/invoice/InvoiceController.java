@@ -2,50 +2,34 @@ package com.paweu.autofleet.invoice;
 
 import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
-import com.paweu.autofleet.invoice.service.InvoiceService;
 import com.paweu.autofleet.security.SecurityUserDetails;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jdk.jshell.spi.ExecutionControl;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @RequestMapping("/invoice")
 @RestController
-public class InvoiceController {
-    private final InvoiceService invoiceService;
-
+@Tag(name = "Invoice")
+public interface InvoiceController {
     @PostMapping("/")
-    public Mono<ResponseEntity<Invoice>> addInvoice(@RequestBody @Valid RequestInvoice requestNewInvoice,
-                                                    @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails user){
-        return invoiceService.addInvoice(requestNewInvoice, user);
-    }
+    Mono<ResponseEntity<Invoice>> addInvoice(@RequestBody @Valid RequestInvoice requestNewInvoice,
+                                             @AuthenticationPrincipal SecurityUserDetails user);
 
     @GetMapping("/")
-    public Mono<ResponseEntity<List<Invoice>>> getAllUserInvoices(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails user){
-        return invoiceService.getAllUserInvoices(user);
-    }
+    Mono<ResponseEntity<List<Invoice>>> getAllUserInvoices(@AuthenticationPrincipal SecurityUserDetails user);
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Invoice>> getInvoice(@PathVariable UUID id) {
-        return invoiceService.getInvoice(id);
-    }
+    Mono<ResponseEntity<Invoice>> getInvoice(@PathVariable UUID id);
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<Invoice>> updateInvoice(@PathVariable UUID id){
-        return invoiceService.updateInvoice(id);
-    }
+    Mono<ResponseEntity<Invoice>> updateInvoice(@PathVariable UUID id);
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Invoice>> deleteInvoice(@PathVariable UUID id){
-        return invoiceService.deleteInvoice(id);
-    }
+    Mono<ResponseEntity<Invoice>> deleteInvoice(@PathVariable UUID id);
 }

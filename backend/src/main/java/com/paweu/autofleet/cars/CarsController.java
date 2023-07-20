@@ -5,12 +5,11 @@ import com.paweu.autofleet.cars.response.ResponseCar;
 import com.paweu.autofleet.cars.response.ResponseCarsList;
 import com.paweu.autofleet.cars.response.ResponseDeleted;
 import com.paweu.autofleet.cars.response.ResponseUpdate;
-import com.paweu.autofleet.cars.service.CarsService;
 import com.paweu.autofleet.security.SecurityUserDetails;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -19,35 +18,23 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/car")
-public class CarsController {
-    @Autowired
-    private CarsService carsService;
-
+@Tag(name = "Car")
+public interface CarsController {
     @GetMapping("/")
-    public Mono<ResponseEntity<ResponseCarsList>> getListCars(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
-        return carsService.getListCars(auth);
-    }
+    Mono<ResponseEntity<ResponseCarsList>> getListCars(@AuthenticationPrincipal SecurityUserDetails auth);
 
     @PostMapping("/")
-    public Mono<ResponseEntity<ResponseCar>> addNewCar(@CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth,
-                                             @RequestBody @Valid RequestCarData reqNewCar){
-        return carsService.addCar(reqNewCar, auth);
-    }
+    Mono<ResponseEntity<ResponseCar>> addNewCar(@AuthenticationPrincipal SecurityUserDetails auth,
+                                                @RequestBody @Valid RequestCarData reqNewCar);
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<UUID> carId){
-        return carsService.getCar(carId);
-    }
+    Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<UUID> carId);
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<UUID> carId){
-        return carsService.deleteCar(carId);
-    }
+    Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<UUID> carId);
 
     @PatchMapping("/{id}")
-    public Mono<ResponseEntity<ResponseUpdate>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
-                                                          @RequestBody @Valid RequestCarData reqCar,
-                                                          @CurrentSecurityContext(expression = "authentication.principal") SecurityUserDetails auth){
-        return carsService.updateCar(carId, reqCar, auth);
-    }
+    Mono<ResponseEntity<ResponseUpdate>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
+                                                   @RequestBody @Valid RequestCarData reqCar,
+                                                   @AuthenticationPrincipal SecurityUserDetails auth);
 }

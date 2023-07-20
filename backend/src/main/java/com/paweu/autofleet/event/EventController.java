@@ -1,13 +1,11 @@
 package com.paweu.autofleet.event;
 
-
 import com.paweu.autofleet.event.request.RequestNewEvent;
 import com.paweu.autofleet.event.request.RequestUpdateEvent;
 import com.paweu.autofleet.event.response.ResponseEvent;
 import com.paweu.autofleet.event.response.ResponseEventDetails;
-import com.paweu.autofleet.event.service.EventService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -15,24 +13,17 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/event")
-public class EventController {
-    private final EventService eventService;
+@Tag(name = "Car events")
+public interface EventController {
     @PostMapping("/")
-    public Mono<ResponseEntity<ResponseEvent>> addEvent(@RequestBody @Valid RequestNewEvent newEvent){
-        return eventService.addNewEvent(newEvent);
-    }
+    Mono<ResponseEntity<ResponseEvent>> addEvent(@RequestBody @Valid RequestNewEvent newEvent);
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<ResponseEventDetails>> getEvent(@PathVariable UUID id){
-        return eventService.getEvent(id);
-    }
+    Mono<ResponseEntity<ResponseEventDetails>> getEvent(@PathVariable UUID id);
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<ResponseEvent>> updateEvent(@PathVariable UUID id,
-                                                   @RequestBody @Valid RequestUpdateEvent updateEventData){
-        return eventService.updateEvent(id, updateEventData);
-    }
+    Mono<ResponseEntity<ResponseEvent>> updateEvent(@PathVariable UUID id,
+                                                    @RequestBody @Valid RequestUpdateEvent updateEventData);
 }
