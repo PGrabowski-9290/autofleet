@@ -1,0 +1,22 @@
+spring:
+  r2dbc:
+    url: ${DB_URL}
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: DEBUG
+jwt:
+  secret:
+    accessToken: access-token-256-aes
+    refreshToken: refresh-token-256-aes
+  expire:
+    accessToken: 1800000
+    refreshToken: 3600000
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
