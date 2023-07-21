@@ -1,10 +1,10 @@
 package com.paweu.autofleet.auth;
 
-import com.paweu.autofleet.auth.request.LoginRequest;
-import com.paweu.autofleet.auth.request.RegisterRequest;
-import com.paweu.autofleet.auth.response.LoginResponse;
-import com.paweu.autofleet.auth.response.LogoutResponse;
-import com.paweu.autofleet.auth.response.RegisterResponse;
+import com.paweu.autofleet.auth.request.RequestLogin;
+import com.paweu.autofleet.auth.request.RequestRegister;
+import com.paweu.autofleet.auth.response.ResponseLogin;
+import com.paweu.autofleet.auth.response.ResponseLogout;
+import com.paweu.autofleet.auth.response.ResponseRegister;
 import com.paweu.autofleet.auth.service.AuthService;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import jakarta.validation.Valid;
@@ -22,22 +22,22 @@ public class AuthControllerImpl implements AuthController {
     private final AuthService authService;
 
     @Override
-    public Mono<ResponseEntity<RegisterResponse>> register(@Valid RegisterRequest data){
+    public Mono<ResponseEntity<ResponseRegister>> register(@Valid RequestRegister data){
         return authService.register(data.email(), data.password(), data.username());
     }
 
     @Override
-    public Mono<ResponseEntity<LoginResponse>> login(@Valid LoginRequest data){
+    public Mono<ResponseEntity<ResponseLogin>> login(@Valid RequestLogin data){
         return authService.login(data.email(), data.password());
     }
 
     @Override
-    public Mono<ResponseEntity<LoginResponse>> refresh(String cookie){
+    public Mono<ResponseEntity<ResponseLogin>> refresh(String cookie){
         return authService.refresh(cookie);
     }
 
     @Override
-    public Mono<ResponseEntity<LogoutResponse>> logout(SecurityUserDetails auth){
+    public Mono<ResponseEntity<ResponseLogout>> logout(SecurityUserDetails auth){
         return authService.logout(auth);
     }
 }

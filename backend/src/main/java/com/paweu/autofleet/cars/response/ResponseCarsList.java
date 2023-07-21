@@ -5,5 +5,5 @@ import com.paweu.autofleet.data.models.Car;
 import java.util.Collection;
 
 public record ResponseCarsList(String message,
-                               Collection<Car> list) {
+                               Collection<ResponseCar> list) {
 }

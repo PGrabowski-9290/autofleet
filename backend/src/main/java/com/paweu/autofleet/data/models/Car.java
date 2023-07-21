@@ -69,6 +69,6 @@ public class Car {
 
     public ResponseCar toResponseCar(){
         return new ResponseCar(id.toString(), userId.toString(), brand, model, year, carType, engineType,
-                engine, odometer, numberPlate, lastUpdate, carEvents);
+                engine, odometer, numberPlate, lastUpdate, carEvents.stream().map(Event::toResponseEvent).toList());
     }
 }

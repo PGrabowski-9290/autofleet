@@ -1,8 +1,8 @@
 package com.paweu.autofleet.auth.service;
 
-import com.paweu.autofleet.auth.response.LoginResponse;
-import com.paweu.autofleet.auth.response.LogoutResponse;
-import com.paweu.autofleet.auth.response.RegisterResponse;
+import com.paweu.autofleet.auth.response.ResponseLogin;
+import com.paweu.autofleet.auth.response.ResponseLogout;
+import com.paweu.autofleet.auth.response.ResponseRegister;
 import com.paweu.autofleet.data.models.User;
 import com.paweu.autofleet.data.repository.UserRepository;
 import com.paweu.autofleet.security.SecurityUserDetails;
@@ -27,7 +27,7 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Mono<ResponseEntity<LoginResponse>> login(@NonNull String email, @NonNull String password){
+    public Mono<ResponseEntity<ResponseLogin>> login(@NonNull String email, @NonNull String password){
         return userRepository.findByEmail(email)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .flatMap(user -> {
@@ -38,7 +38,7 @@ public class AuthService {
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 
-    public Mono<ResponseEntity<RegisterResponse>> register(String email, String password, String username){
+    public Mono<ResponseEntity<ResponseRegister>> register(String email, String password, String username){
         return Mono.just(new User(
                 email,
                 passwordEncoder.encode(password),
@@ -50,14 +50,14 @@ public class AuthService {
             .map(user -> ResponseEntity.ok()
                     .header("Set-Cookie", generateCookie(user.getRefToken(),jwtService.getRefreshTokenExpires()))
                     .body(
-                        new RegisterResponse(
+                        new ResponseRegister(
                             "Registered",
                             jwtService.generateAccessToken(user.getEmail())
                     )
             ));
     }
 
-    public Mono<ResponseEntity<LoginResponse>> refresh(String cookieJwt){
+    public Mono<ResponseEntity<ResponseLogin>> refresh(String cookieJwt){
         return Mono.just(jwtService.validateRefresh(cookieJwt))
                 .flatMap(email -> userRepository.findByEmailAndRefToken(email,cookieJwt))
                 .cast(User.class)
@@ -69,7 +69,7 @@ public class AuthService {
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 
-    public Mono<ResponseEntity<LogoutResponse>> logout(SecurityUserDetails auth){
+    public Mono<ResponseEntity<ResponseLogout>> logout(SecurityUserDetails auth){
         return userRepository.findByEmail(auth.getUsername())
                 .flatMap(user -> {
                     user.setRefToken("");
@@ -77,15 +77,15 @@ public class AuthService {
                 })
                 .map(user -> ResponseEntity.ok().
                         header("Set-Cookie", generateCookie("", 0))
-                        .body(new LogoutResponse("Logged Out")));
+                        .body(new ResponseLogout("Logged Out")));
     }
 
-    private ResponseEntity<LoginResponse> generateLoginResponse(User user){
+    private ResponseEntity<ResponseLogin> generateLoginResponse(User user){
         String refCookie = generateCookie(user.getRefToken(),jwtService.getRefreshTokenExpires());
         String accessToken = jwtService.generateAccessToken(user.getEmail());
         return ResponseEntity.ok()
                 .header("Set-Cookie", refCookie)
-                .body(new LoginResponse(accessToken, user.getUsername()));
+                .body(new ResponseLogin(accessToken, user.getUsername()));
     }
 
     private String generateCookie(String value, long age){

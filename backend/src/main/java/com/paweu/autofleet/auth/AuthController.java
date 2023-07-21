@@ -1,10 +1,10 @@
 package com.paweu.autofleet.auth;
 
-import com.paweu.autofleet.auth.request.LoginRequest;
-import com.paweu.autofleet.auth.request.RegisterRequest;
-import com.paweu.autofleet.auth.response.LoginResponse;
-import com.paweu.autofleet.auth.response.LogoutResponse;
-import com.paweu.autofleet.auth.response.RegisterResponse;
+import com.paweu.autofleet.auth.request.RequestLogin;
+import com.paweu.autofleet.auth.request.RequestRegister;
+import com.paweu.autofleet.auth.response.ResponseLogin;
+import com.paweu.autofleet.auth.response.ResponseLogout;
+import com.paweu.autofleet.auth.response.ResponseRegister;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,7 +35,7 @@ public interface AuthController {
             }
     )
     @PostMapping("/register")
-    Mono<ResponseEntity<RegisterResponse>> register(@RequestBody @Valid RegisterRequest data);
+    Mono<ResponseEntity<ResponseRegister>> register(@RequestBody @Valid RequestRegister data);
 
     @Operation(
             description = "Login user into system and send access token and refresh token cookie",
@@ -54,7 +54,7 @@ public interface AuthController {
             }
     )
     @PostMapping("/login")
-    Mono<ResponseEntity<LoginResponse>> login(@RequestBody @Valid LoginRequest data);
+    Mono<ResponseEntity<ResponseLogin>> login(@RequestBody @Valid RequestLogin data);
 
 
     @Operation(
@@ -73,7 +73,7 @@ public interface AuthController {
             }
     )
     @GetMapping("/refresh")
-    Mono<ResponseEntity<LoginResponse>> refresh(@CookieValue(name = "jwt") String cookie);
+    Mono<ResponseEntity<ResponseLogin>> refresh(@CookieValue(name = "jwt") String cookie);
 
     @Operation(
             description = "Logout user and deactivate valid refresh tokens",
@@ -81,5 +81,5 @@ public interface AuthController {
     )
     @SecurityRequirement(name = "bearer-key")
     @GetMapping("/logout")
-    Mono<ResponseEntity<LogoutResponse>> logout(@AuthenticationPrincipal SecurityUserDetails auth);
+    Mono<ResponseEntity<ResponseLogout>> logout(@AuthenticationPrincipal SecurityUserDetails auth);
 }

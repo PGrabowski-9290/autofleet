@@ -1,6 +1,7 @@
 package com.paweu.autofleet.cars.response;
 
 import com.paweu.autofleet.data.models.Event;
+import com.paweu.autofleet.event.response.ResponseEvent;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,5 +17,5 @@ public record ResponseCar(String id,
                           int odometer,
                           String numberPlate,
                           LocalDateTime lastUpdate,
-                          List<Event> events) {
+                          List<ResponseEvent> events) {
 }
