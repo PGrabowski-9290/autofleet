@@ -1,6 +1,7 @@
 package com.paweu.autofleet.data.repository;
 
 import com.paweu.autofleet.data.models.Invoice;
+import com.paweu.autofleet.data.models.InvoicePos;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 @Repository
 @RequiredArgsConstructor
@@ -93,11 +95,26 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
         }
     }
 
+    private Mono<Invoice> saveInvoicePos2(Invoice invoice){
+        return Mono.just(invoicePosRepository.deleteAllByInvoiceId(invoice.getId()))
+                .flatMap(__ -> Flux.fromIterable(invoice.getInvoicePosList()
+                                .stream()
+                                .peek(it -> it.setInvoiceId(invoice.getId()))
+                                .toList())
+                        .flatMap(invoicePosRepository::save)
+                        .collectList()
+                        .doOnNext(invoice::setInvoicePosList)
+                        .thenReturn(invoice));
+    }
+
     private Mono<Invoice> saveInvoicePos(Invoice invoice){
-        return Flux.fromIterable(invoice.getInvoicePosList()
-                        .stream()
-                        .peek(it -> it.setInvoiceId(invoice.getId()))
-                        .toList())
+        List<InvoicePos> updatedList = invoice.getInvoicePosList()
+                .stream()
+                .peek(it -> it.setInvoiceId(invoice.getId()))
+                .toList();
+
+        return invoicePosRepository.deleteAllByInvoiceId(invoice.getId())
+                .thenMany(Flux.fromIterable(updatedList))
                 .flatMap(invoicePosRepository::save)
                 .collectList()
                 .doOnNext(invoice::setInvoicePosList)

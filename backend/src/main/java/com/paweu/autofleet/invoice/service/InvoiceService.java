@@ -4,18 +4,17 @@ import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.data.models.InvoicePos;
 import com.paweu.autofleet.data.repository.InvoiceRepository;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
+import com.paweu.autofleet.invoice.request.RequestInvoiceUpdate;
 import com.paweu.autofleet.invoice.response.ResponseDeleted;
 import com.paweu.autofleet.security.SecurityUserDetails;
-import jdk.jshell.spi.ExecutionControl;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,13 +58,29 @@ public class InvoiceService {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found")));
     }
 
-    @SneakyThrows
-    public Mono<ResponseEntity<Invoice>> updateInvoice(UUID id) {
-        throw new ExecutionControl.NotImplementedException("update invoice not implemented");
+    public Mono<ResponseEntity<Invoice>> updateInvoice(UUID id, RequestInvoiceUpdate invoiceUpdate) {
+        return invoiceRepository.findById(id)
+                .map(invoice -> {
+                    invoice.setLastUpdate(LocalDateTime.now());
+                    invoice.setInvoicePosList(invoiceUpdate.invoicePosList()
+                            .stream()
+                            .map(requestInvoicePos ->InvoicePos.builder()
+                                    .name(requestInvoicePos.name())
+                                    .price(requestInvoicePos.price())
+                                    .quantity(requestInvoicePos.qty())
+                                    .build())
+                            .toList());
+                    invoice.setInvoiceNumber(invoiceUpdate.invoiceNumber());
+                    invoice.setDate(invoiceUpdate.date());
+                    invoice.setCurrency(invoiceUpdate.currency());
+                    invoice.setEventId(invoiceUpdate.eventId());
+                    return invoice;
+                })
+                .flatMap(invoiceRepository::save)
+                .map(it -> ResponseEntity.ok().body(it));
 
     }
 
-    @SneakyThrows
     public Mono<ResponseEntity<List<Invoice>>> getAllUserInvoices(SecurityUserDetails user) {
         return invoiceRepository.findAllByUserId(user.getId())
                 .collectList()
