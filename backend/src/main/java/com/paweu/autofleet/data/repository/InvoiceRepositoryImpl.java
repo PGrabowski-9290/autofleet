@@ -35,7 +35,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
 
     @Override
     public Flux<Invoice> findAllByUserId(UUID id) {
-        return databaseClient.sql(String.format("%s WHERE invpos.user_id = :id", SQL_SELECT))
+        return databaseClient.sql(String.format("%s WHERE inv.user_id = :id", SQL_SELECT))
                 .bind("id", id)
                 .fetch()
                 .all()

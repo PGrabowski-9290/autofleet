@@ -67,6 +67,8 @@ public class InvoiceService {
 
     @SneakyThrows
     public Mono<ResponseEntity<List<Invoice>>> getAllUserInvoices(SecurityUserDetails user) {
-        throw new ExecutionControl.NotImplementedException("Get all user invoices not implemented");
+        return invoiceRepository.findAllByUserId(user.getId())
+                .collectList()
+                .map(it -> ResponseEntity.ok().body(it));
     }
 }
