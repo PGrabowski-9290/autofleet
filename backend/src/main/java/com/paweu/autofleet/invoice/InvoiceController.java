@@ -2,6 +2,7 @@ package com.paweu.autofleet.invoice;
 
 import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
+import com.paweu.autofleet.invoice.response.ResponseDeleted;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -50,9 +51,9 @@ public interface InvoiceController {
     Mono<ResponseEntity<Invoice>> updateInvoice(@PathVariable UUID id);
 
     @Operation(
-            description = "Delete invoice",
+            description = "Delete invoice and return amount of deleted records",
             summary = "Delete invoice"
     )
     @DeleteMapping("/{id}")
-    Mono<ResponseEntity<Invoice>> deleteInvoice(@PathVariable UUID id);
+    Mono<ResponseEntity<ResponseDeleted>> deleteInvoice(@PathVariable UUID id);
 }

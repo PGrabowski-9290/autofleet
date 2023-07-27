@@ -14,5 +14,5 @@ public interface InvoiceRepository {
     public Flux<Invoice> findAllByUserId(UUID id);
     public Mono<Invoice> save(Invoice invoice);
 
-    public Mono<Invoice> deleteById(UUID id);
+    public Mono<Long> deleteById(UUID id);
 }

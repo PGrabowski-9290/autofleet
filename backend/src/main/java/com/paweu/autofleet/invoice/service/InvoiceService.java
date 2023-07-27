@@ -4,12 +4,16 @@ import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.data.models.InvoicePos;
 import com.paweu.autofleet.data.repository.InvoiceRepository;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
+import com.paweu.autofleet.invoice.response.ResponseDeleted;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import jdk.jshell.spi.ExecutionControl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -44,14 +48,15 @@ public class InvoiceService {
                 });
     }
 
-    @SneakyThrows
     public Mono<ResponseEntity<Invoice>> getInvoice(UUID id){
-        throw new ExecutionControl.NotImplementedException("get invoice not implemented");
+        return invoiceRepository.findById(id)
+                .map(it -> ResponseEntity.ok().body(it));
     }
 
-    @SneakyThrows
-    public Mono<ResponseEntity<Invoice>> deleteInvoice(UUID id) {
-        throw new ExecutionControl.NotImplementedException("Delete invoice not implemented");
+    public Mono<ResponseEntity<ResponseDeleted>> deleteInvoice(UUID id) {
+        return invoiceRepository.deleteById(id)
+                .map(it -> ResponseEntity.ok().body(new ResponseDeleted(it)))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found")));
     }
 
     @SneakyThrows

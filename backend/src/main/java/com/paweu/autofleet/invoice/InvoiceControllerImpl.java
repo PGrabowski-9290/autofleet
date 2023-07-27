@@ -2,6 +2,7 @@ package com.paweu.autofleet.invoice;
 
 import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
+import com.paweu.autofleet.invoice.response.ResponseDeleted;
 import com.paweu.autofleet.invoice.service.InvoiceService;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import jakarta.validation.Valid;
@@ -42,7 +43,7 @@ public class InvoiceControllerImpl implements InvoiceController {
     }
 
     @Override
-    public Mono<ResponseEntity<Invoice>> deleteInvoice(UUID id) {
+    public Mono<ResponseEntity<ResponseDeleted>> deleteInvoice(UUID id) {
         return invoiceService.deleteInvoice(id);
     }
 }

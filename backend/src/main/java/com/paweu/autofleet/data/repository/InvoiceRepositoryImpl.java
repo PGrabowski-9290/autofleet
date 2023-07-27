@@ -1,7 +1,6 @@
 package com.paweu.autofleet.data.repository;
 
 import com.paweu.autofleet.data.models.Invoice;
-import com.paweu.autofleet.data.models.InvoicePos;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -51,8 +50,17 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
     }
 
     @Override
-    public Mono<Invoice> deleteById(UUID id) {
-        return null;
+    public Mono<Long> deleteById(UUID id) {
+        return databaseClient.sql("DELETE FROM public.invoice WHERE id = :id")
+                .bind("id", id)
+                .fetch()
+                .rowsUpdated()
+                .flatMap(res -> {
+                    if (res != 0)
+                        return Mono.just(res);
+                    else
+                        return Mono.empty();
+                });
     }
 
     private Mono<Invoice> saveInvoice(Invoice invoice){
