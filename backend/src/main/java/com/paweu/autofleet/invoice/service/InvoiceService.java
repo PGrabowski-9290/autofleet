@@ -4,6 +4,7 @@ import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.data.models.InvoicePos;
 import com.paweu.autofleet.data.repository.InvoiceRepository;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
+import com.paweu.autofleet.invoice.request.RequestInvoicePos;
 import com.paweu.autofleet.invoice.request.RequestInvoiceUpdate;
 import com.paweu.autofleet.invoice.response.ResponseDeleted;
 import com.paweu.autofleet.security.SecurityUserDetails;
@@ -24,22 +25,18 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
 
     public Mono<ResponseEntity<Invoice>> addInvoice(RequestInvoice requestNewInvoice,
-                                                       SecurityUserDetails user){
+                                                    SecurityUserDetails user) {
         return Mono.just(
-                Invoice.builder()
-                    .userId(user.getId())
-                    .eventId(requestNewInvoice.eventId())
-                    .invoiceNumber(requestNewInvoice.invoiceNumber())
-                    .date(requestNewInvoice.date())
-                    .currency(requestNewInvoice.currency())
-                    .invoicePosList(requestNewInvoice.invoicePosList().stream()
-                            .map(req -> InvoicePos.builder()
-                                    .name(req.name())
-                                    .price(req.price())
-                                    .quantity(req.qty())
-                                    .build())
-                            .toList())
-                    .build())
+                        Invoice.builder()
+                                .userId(user.getId())
+                                .eventId(requestNewInvoice.eventId())
+                                .invoiceNumber(requestNewInvoice.invoiceNumber())
+                                .date(requestNewInvoice.date())
+                                .currency(requestNewInvoice.currency())
+                                .invoicePosList(requestNewInvoice.invoicePosList().stream()
+                                        .map(this::buildeInvoicePos)
+                                        .toList())
+                                .build())
                 .flatMap(invoiceRepository::save)
                 .map(it -> {
                     it.calcTotal();
@@ -47,7 +44,7 @@ public class InvoiceService {
                 });
     }
 
-    public Mono<ResponseEntity<Invoice>> getInvoice(UUID id){
+    public Mono<ResponseEntity<Invoice>> getInvoice(UUID id) {
         return invoiceRepository.findById(id)
                 .map(it -> ResponseEntity.ok().body(it));
     }
@@ -64,11 +61,7 @@ public class InvoiceService {
                     invoice.setLastUpdate(LocalDateTime.now());
                     invoice.setInvoicePosList(invoiceUpdate.invoicePosList()
                             .stream()
-                            .map(requestInvoicePos ->InvoicePos.builder()
-                                    .name(requestInvoicePos.name())
-                                    .price(requestInvoicePos.price())
-                                    .quantity(requestInvoicePos.qty())
-                                    .build())
+                            .map(this::buildeInvoicePos)
                             .toList());
                     invoice.setInvoiceNumber(invoiceUpdate.invoiceNumber());
                     invoice.setDate(invoiceUpdate.date());
@@ -85,5 +78,13 @@ public class InvoiceService {
         return invoiceRepository.findAllByUserId(user.getId())
                 .collectList()
                 .map(it -> ResponseEntity.ok().body(it));
+    }
+
+    private InvoicePos buildeInvoicePos(RequestInvoicePos req){
+        return InvoicePos.builder()
+                .name(req.name())
+                .price(req.price())
+                .quantity(req.qty())
+                .build();
     }
 }
