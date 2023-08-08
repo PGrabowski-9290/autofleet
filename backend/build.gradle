@@ -8,6 +8,8 @@ group = 'com.paweu'
 version = '0.0.2-SNAPSHOT'
 sourceCompatibility = '17'
 
+ext['junit-jupiter.version'] = '5.10.0'
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -39,6 +41,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation "org.mockito:mockito-core:3.+"
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
 }
 
 tasks.named('test') {
