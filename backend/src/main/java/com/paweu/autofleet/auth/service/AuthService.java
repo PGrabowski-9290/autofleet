@@ -6,6 +6,7 @@ import com.paweu.autofleet.auth.response.ResponseRegister;
 import com.paweu.autofleet.data.models.User;
 import com.paweu.autofleet.data.repository.UserRepository;
 import com.paweu.autofleet.error.exceptions.UserAlreadyExistException;
+import com.paweu.autofleet.error.exceptions.WrongCredentialsException;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import com.paweu.autofleet.service.JwtService;
 import lombok.NonNull;
@@ -36,7 +37,7 @@ public class AuthService {
                     return userRepository.save(user);
                 })
                 .map(this::generateLoginResponse)
-                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
+                .switchIfEmpty(Mono.error(WrongCredentialsException::new));
     }
 
     public Mono<ResponseEntity<ResponseRegister>> register(String email, String password, String username) {
@@ -78,8 +79,8 @@ public class AuthService {
                     user.setRefToken("");
                     return userRepository.save(user);
                 })
-                .map(user -> ResponseEntity.status(HttpStatus.OK).
-                        header("Set-Cookie", generateCookie("", 0))
+                .map(user -> ResponseEntity.status(HttpStatus.OK)
+                        .header("Set-Cookie", generateCookie("", 0))
                         .body(new ResponseLogout("Logged Out")));
     }
 
