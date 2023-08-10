@@ -35,17 +35,17 @@ public class CarsControllerImpl implements CarsController {
     }
 
     @Override
-    public Mono<ResponseEntity<ResponseCar>> getCar(Optional<UUID> carId) {
+    public Mono<ResponseEntity<ResponseCar>> getCar(UUID carId) {
         return carsService.getCar(carId);
     }
 
     @Override
-    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(Optional<UUID> carId) {
+    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(UUID carId) {
         return carsService.deleteCar(carId);
     }
 
     @Override
-    public Mono<ResponseEntity<ResponseUpdate>> updateCar(Optional<UUID> carId,
+    public Mono<ResponseEntity<ResponseUpdate>> updateCar(UUID carId,
                                                           @Valid RequestCarData reqCar,
                                                           SecurityUserDetails auth) {
         return carsService.updateCar(carId, reqCar, auth);

@@ -35,7 +35,7 @@ public interface CarsController {
             summary = "Get car"
     )
     @GetMapping("/{id}")
-    Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") Optional<UUID> carId);
+    Mono<ResponseEntity<ResponseCar>> getCar(@PathVariable(name = "id") UUID carId);
 
     @Operation(
             description = "Add new car to user list",
@@ -50,14 +50,14 @@ public interface CarsController {
             summary = "Delete car"
     )
     @DeleteMapping("/{id}")
-    Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") Optional<UUID> carId);
+    Mono<ResponseEntity<ResponseDeleted>> deleteCar(@PathVariable(name = "id") UUID carId);
 
     @Operation(
             description = "Update car",
             summary = "Update car"
     )
     @PatchMapping("/{id}")
-    Mono<ResponseEntity<ResponseUpdate>> updateCar(@PathVariable(name = "id") Optional<UUID> carId,
+    Mono<ResponseEntity<ResponseUpdate>> updateCar(@PathVariable(name = "id") UUID carId,
                                                    @RequestBody @Valid RequestCarData reqCar,
                                                    @AuthenticationPrincipal SecurityUserDetails auth);
 }

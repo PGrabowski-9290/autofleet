@@ -8,6 +8,7 @@ import com.paweu.autofleet.cars.response.ResponseUpdate;
 import com.paweu.autofleet.data.models.Car;
 import com.paweu.autofleet.data.models.Event;
 import com.paweu.autofleet.data.repository.CarRepository;
+import com.paweu.autofleet.error.exceptions.CarNotFoundException;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,11 +30,11 @@ public class CarsService {
                 .map(list -> ResponseEntity.ok().body(new ResponseCarsList("pobrano", list)));
     }
 
-    public Mono<ResponseEntity<ResponseCar>> getCar(Optional<UUID> carId) {
-        return carId.map(s -> carRepository.findById(s)
+    public Mono<ResponseEntity<ResponseCar>> getCar(UUID carId) {
+        return carRepository.findById(carId)
                 .map(Car::toResponseCar)
                 .map(it -> ResponseEntity.ok().body(it))
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))).orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
+                .switchIfEmpty(Mono.error(CarNotFoundException::new));
     }
 
     public Mono<ResponseEntity<ResponseCar>> addCar(RequestCarData reqNewCar, SecurityUserDetails auth) {
@@ -52,16 +53,15 @@ public class CarsService {
                 .map(it -> ResponseEntity.ok().body(it.toResponseCar()));
     }
 
-    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(Optional<UUID> carId) {
-        return carId.map(s -> carRepository.deleteById(s)
+    public Mono<ResponseEntity<ResponseDeleted>> deleteCar(UUID carId) {
+        return carRepository.deleteById(carId)
                         .map(res -> ResponseEntity.ok().body(new ResponseDeleted(res)))
-                        .switchIfEmpty(Mono.just(ResponseEntity.notFound().build())))
-                .orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
+                        .switchIfEmpty(Mono.error(CarNotFoundException::new));
     }
 
-    public Mono<ResponseEntity<ResponseUpdate>> updateCar(Optional<UUID> carId, RequestCarData reqCar,
+    public Mono<ResponseEntity<ResponseUpdate>> updateCar(UUID carId, RequestCarData reqCar,
                                                           SecurityUserDetails auth) {
-        return carId.map(s -> carRepository.findById(s)
+        return carRepository.findById(carId)
                         .flatMap(car -> {
                             car.setBrand(reqCar.brand());
                             car.setModel(reqCar.model());
@@ -75,7 +75,6 @@ public class CarsService {
                             return carRepository.update(car);
                         })
                         .map(it -> ResponseEntity.ok().body(new ResponseUpdate(it)))
-                        .switchIfEmpty(Mono.just(ResponseEntity.notFound().build())))
-                .orElseGet(() -> Mono.just(ResponseEntity.badRequest().build()));
+                        .switchIfEmpty(Mono.error(CarNotFoundException::new));
     }
 }

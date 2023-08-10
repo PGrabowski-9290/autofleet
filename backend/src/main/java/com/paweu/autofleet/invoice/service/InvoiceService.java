@@ -3,16 +3,15 @@ package com.paweu.autofleet.invoice.service;
 import com.paweu.autofleet.data.models.Invoice;
 import com.paweu.autofleet.data.models.InvoicePos;
 import com.paweu.autofleet.data.repository.InvoiceRepository;
+import com.paweu.autofleet.error.exceptions.InvoiceNotFoundException;
 import com.paweu.autofleet.invoice.request.RequestInvoice;
 import com.paweu.autofleet.invoice.request.RequestInvoicePos;
 import com.paweu.autofleet.invoice.request.RequestInvoiceUpdate;
 import com.paweu.autofleet.invoice.response.ResponseDeleted;
 import com.paweu.autofleet.security.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -46,17 +45,19 @@ public class InvoiceService {
 
     public Mono<ResponseEntity<Invoice>> getInvoice(UUID id) {
         return invoiceRepository.findById(id)
-                .map(it -> ResponseEntity.ok().body(it));
+                .map(it -> ResponseEntity.ok().body(it))
+                .switchIfEmpty(Mono.error(InvoiceNotFoundException::new));
     }
 
     public Mono<ResponseEntity<ResponseDeleted>> deleteInvoice(UUID id) {
         return invoiceRepository.deleteById(id)
                 .map(it -> ResponseEntity.ok().body(new ResponseDeleted(it)))
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found")));
+                .switchIfEmpty(Mono.error(InvoiceNotFoundException::new));
     }
 
     public Mono<ResponseEntity<Invoice>> updateInvoice(UUID id, RequestInvoiceUpdate invoiceUpdate) {
         return invoiceRepository.findById(id)
+                .switchIfEmpty(Mono.error(InvoiceNotFoundException::new))
                 .map(invoice -> {
                     invoice.setLastUpdate(LocalDateTime.now());
                     invoice.setInvoicePosList(invoiceUpdate.invoicePosList()
