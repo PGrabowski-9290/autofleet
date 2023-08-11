@@ -7,6 +7,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -14,23 +15,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler extends BaseExceptionHandler {
     @ExceptionHandler({ResourceNotFoundException.class})
-    public ResponseEntity<ResponseApiError> handleResourceNotFount(ResourceNotFoundException ex) {
-        logger.warn(ex.getMessage());
+    public ResponseEntity<Object> handleResourceNotFount(ResourceNotFoundException ex) {
+        logger.info(ex.getMessage());
         ResponseApiError apiError = new ResponseApiError(HttpStatus.NOT_FOUND, ex.getMessage());
         return buildResponse(apiError);
     }
 
     @ExceptionHandler({WrongCredentialsException.class})
-    public ResponseEntity<ResponseApiError> handleWrongCredentials(WrongCredentialsException ex) {
-        ResponseApiError apiError = new ResponseApiError(HttpStatus.UNAUTHORIZED, "error.global.wrong.credentials");
+    public ResponseEntity<Object> handleWrongCredentials(WrongCredentialsException ex) {
+        logger.info(ex);
+        ResponseApiError apiError = new ResponseApiError(HttpStatus.UNAUTHORIZED, ex.getMessage());
         return buildResponse(apiError);
     }
 
     @ExceptionHandler({ResourceAlreadyExistException.class})
-    public ResponseEntity<ResponseApiError> handleResourceAlreadyExist(ResourceAlreadyExistException ex) {
+    public ResponseEntity<Object> handleResourceAlreadyExist(ResourceAlreadyExistException ex) {
         ResponseApiError apiError = new ResponseApiError(HttpStatus.CONFLICT, ex.getMessage());
         return buildResponse(apiError);
     }
-
-
 }

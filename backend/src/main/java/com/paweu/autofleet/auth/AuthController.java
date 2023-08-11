@@ -35,7 +35,7 @@ public interface AuthController {
             }
     )
     @PostMapping("/register")
-    Mono<ResponseEntity<ResponseRegister>> register(@RequestBody @Valid RequestRegister data);
+    Mono<ResponseEntity<ResponseRegister>> register(@Valid @RequestBody RequestRegister data);
 
     @Operation(
             description = "Login user into system and send access token and refresh token cookie",
@@ -54,7 +54,7 @@ public interface AuthController {
             }
     )
     @PostMapping("/login")
-    Mono<ResponseEntity<ResponseLogin>> login(@RequestBody @Valid RequestLogin data);
+    Mono<ResponseEntity<ResponseLogin>> login(@RequestBody RequestLogin data);
 
 
     @Operation(

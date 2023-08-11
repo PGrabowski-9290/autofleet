@@ -11,6 +11,7 @@ import com.paweu.autofleet.security.SecurityUserDetails;
 import com.paweu.autofleet.service.JwtService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,7 @@ public class AuthService {
                         .build())
                 .flatMap(userRepository::save)
                 .map(user -> ResponseEntity.status(HttpStatus.CREATED)
-                        .header("Set-Cookie", generateCookie(user.getRefToken(), jwtService.getRefreshTokenExpires()))
+                        .header(HttpHeaders.SET_COOKIE, generateCookie(user.getRefToken(), jwtService.getRefreshTokenExpires()))
                         .body(
                                 new ResponseRegister(
                                         "Registered",
@@ -80,7 +81,7 @@ public class AuthService {
                     return userRepository.save(user);
                 })
                 .map(user -> ResponseEntity.status(HttpStatus.OK)
-                        .header("Set-Cookie", generateCookie("", 0))
+                        .header(HttpHeaders.SET_COOKIE, generateCookie("", 0))
                         .body(new ResponseLogout("Logged Out")));
     }
 
@@ -88,7 +89,7 @@ public class AuthService {
         String refCookie = generateCookie(user.getRefToken(), jwtService.getRefreshTokenExpires());
         String accessToken = jwtService.generateAccessToken(user.getEmail());
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Set-Cookie", refCookie)
+                .header(HttpHeaders.SET_COOKIE, refCookie)
                 .body(new ResponseLogin(accessToken, user.getUsername()));
     }
 
