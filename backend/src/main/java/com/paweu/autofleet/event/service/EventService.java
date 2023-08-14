@@ -2,6 +2,7 @@ package com.paweu.autofleet.event.service;
 
 import com.paweu.autofleet.data.models.Event;
 import com.paweu.autofleet.data.repository.EventRepository;
+import com.paweu.autofleet.error.exceptions.EventNotFoundException;
 import com.paweu.autofleet.event.request.RequestNewEvent;
 import com.paweu.autofleet.event.request.RequestUpdateEvent;
 import com.paweu.autofleet.event.response.ResponseEvent;
@@ -37,7 +38,8 @@ public class EventService {
 
     public Mono<ResponseEntity<ResponseEventDetails>> getEvent(UUID eventId){
         return eventRepository.findEventJoinInvoiceJoinInvoicePosByEventId(eventId)
-                .map(event -> ResponseEntity.ok().body(event.toResponseEventDetails()));
+                .map(event -> ResponseEntity.ok().body(event.toResponseEventDetails()))
+                .switchIfEmpty(Mono.error(EventNotFoundException::new));
     }
 
     public Mono<ResponseEntity<ResponseEvent>> updateEvent(UUID eventId, RequestUpdateEvent eventData){

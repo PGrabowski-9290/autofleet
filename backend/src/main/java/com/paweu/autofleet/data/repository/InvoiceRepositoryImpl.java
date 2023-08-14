@@ -9,10 +9,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
-public class InvoiceRepositoryImpl implements InvoiceRepository{
+public class InvoiceRepositoryImpl implements InvoiceRepository {
     private final DatabaseClient databaseClient;
     private final InvoicePosRepository invoicePosRepository;
 
@@ -23,6 +25,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
             	FROM public.invoice inv
             	LEFT JOIN public.invoiceposition invpos on inv.id = invpos.invoice_id
             """;
+
     @Override
     public Mono<Invoice> findById(UUID id) {
         return databaseClient.sql(String.format("%s WHERE inv.id = :id", SQL_SELECT))
@@ -36,7 +39,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
 
     @Override
     public Flux<Invoice> findAllByUserId(UUID id) {
-        return databaseClient.sql(String.format("%s WHERE invpos.user_id = :id", SQL_SELECT))
+        return databaseClient.sql(String.format("%s WHERE inv.user_id = :id", SQL_SELECT))
                 .bind("id", id)
                 .fetch()
                 .all()
@@ -51,12 +54,21 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
     }
 
     @Override
-    public Mono<Invoice> deleteById(UUID id) {
-        return null;
+    public Mono<Long> deleteById(UUID id) {
+        return databaseClient.sql("DELETE FROM public.invoice WHERE id = :id")
+                .bind("id", id)
+                .fetch()
+                .rowsUpdated()
+                .flatMap(res -> {
+                    if (res != 0)
+                        return Mono.just(res);
+                    else
+                        return Mono.empty();
+                });
     }
 
-    private Mono<Invoice> saveInvoice(Invoice invoice){
-        if (invoice.getId() == null){
+    private Mono<Invoice> saveInvoice(Invoice invoice) {
+        if (invoice.getId() == null) {
             return databaseClient.sql("INSERT INTO public.invoice(user_id, event_id, invoice_date, invoice_number, currency)" +
                             "VALUES (:userId, :eventId, :invoiceDate, :invoiceNumber, :currency)")
                     .filter(statement -> statement.returnGeneratedValues("id", "last_update"))
@@ -85,11 +97,14 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
         }
     }
 
-    private Mono<Invoice> saveInvoicePos(Invoice invoice){
-        return Flux.fromIterable(invoice.getInvoicePosList()
-                        .stream()
-                        .peek(it -> it.setInvoiceId(invoice.getId()))
-                        .toList())
+    private Mono<Invoice> saveInvoicePos(Invoice invoice) {
+        List<InvoicePos> updatedList = invoice.getInvoicePosList()
+                .stream()
+                .peek(it -> it.setInvoiceId(invoice.getId()))
+                .toList();
+
+        return invoicePosRepository.deleteAllByInvoiceId(invoice.getId())
+                .thenMany(Flux.fromIterable(updatedList))
                 .flatMap(invoicePosRepository::save)
                 .collectList()
                 .doOnNext(invoice::setInvoicePosList)

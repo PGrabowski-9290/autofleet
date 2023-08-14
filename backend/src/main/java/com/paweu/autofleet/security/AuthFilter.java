@@ -2,6 +2,7 @@ package com.paweu.autofleet.security;
 
 import com.paweu.autofleet.data.repository.UserRepository;
 import com.paweu.autofleet.service.JwtService;
+import lombok.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -23,7 +24,8 @@ public class AuthFilter implements WebFilter {
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    @NonNull
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange,@NonNull WebFilterChain chain) {
         try {
             String email = jwtService.validateAccess(getJwtToken(exchange));
             Mono<SecurityUserDetails> user = userRepository.findByEmail(email).mapNotNull(SecurityUserDetails::new);

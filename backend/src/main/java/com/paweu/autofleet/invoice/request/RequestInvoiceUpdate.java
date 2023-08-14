@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public record RequestInvoice(
+public record RequestInvoiceUpdate(
         UUID eventId,
         @NotNull(message = "Date field is required")
         LocalDate date,

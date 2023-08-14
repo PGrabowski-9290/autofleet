@@ -1,11 +1,14 @@
 spring:
   r2dbc:
     url: ${DB_URL}
-logging:
-  level:
-    org:
-      springframework:
-        r2dbc: DEBUG
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        r2dbc: DEBUG
+#        web:
+#          reactive: debug
+#    root: debug
 jwt:
   secret:
     accessToken: access-token-256-aes

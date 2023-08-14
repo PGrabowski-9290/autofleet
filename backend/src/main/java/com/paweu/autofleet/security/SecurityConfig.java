@@ -29,7 +29,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    protected SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, AuthFilter authFilter){
+    protected SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, AuthFilter authFilter) {
         return http
                 .authorizeExchange(ex -> {
                     ex.pathMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll();
@@ -39,15 +39,15 @@ public class SecurityConfig {
                 })
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .exceptionHandling(exceptionHandlingSpec -> {
-                     exceptionHandlingSpec.authenticationEntryPoint((exchange, ex) -> {
-                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                        return Mono.empty();
-                    });
-                    exceptionHandlingSpec.accessDeniedHandler((exchange, denied) -> {
-                        exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-                        return Mono.empty();
-                    });
-                }
+                            exceptionHandlingSpec.authenticationEntryPoint((exchange, ex) -> {
+                                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                                return Mono.empty();
+                            });
+                            exceptionHandlingSpec.accessDeniedHandler((exchange, denied) -> {
+                                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                                return Mono.empty();
+                            });
+                        }
                 )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
